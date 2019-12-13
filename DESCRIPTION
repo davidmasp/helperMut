@@ -1,11 +1,41 @@
 Package: helperMut
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Helper Functions For Mutation Analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: David Mas-Ponte
+Maintainer: David Mas-Ponte <david.mas@irbbarcelona.org>
+Description: This package provides basic functionalities and helper
+    functions to work with mutational and genomic data in R. It builds up
+    on pre-existing tools from bioc to set up a framework for analysis.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+Suggests:
+    BSgenome.Hsapiens.UCSC.hg19,
+    BSgenome.Hsapiens.UCSC.hg38,
+    BSgenome.Mmusculus.UCSC.mm9,
+    BSgenome.Mmusculus.UCSC.mm10
+Imports: 
+    BiocGenerics,
+    BSgenome,
+    dplyr,
+    GenomeInfoDb,
+    GenomicRanges,
+    glue,
+    IRanges,
+    purrr,
+    utils,
+    Biostrings,
+    stringr,
+    broom,
+    magrittr,
+    plyr,
+    tidyr,
+    tidyselect,
+    VariantAnnotation (>= 1.27.2),
+    cowplot,
+    forcats,
+    ggplot2,
+    S4Vectors,
+    scales,
+    tibble
