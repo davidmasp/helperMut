@@ -39,3 +39,4 @@ Imports:
     S4Vectors,
     scales,
     tibble
+RoxygenNote: 7.0.0
