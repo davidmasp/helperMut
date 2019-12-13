@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# helperMut <a href=''><img src='helperMut.png' align="right" height="139" /></a>
+# helperMut <a href=''><img src='helperMut.png' align="right" height="175" /></a>
 
 [![Travis-CI Build Status]()]() [![Coverage Status]()]()
 
