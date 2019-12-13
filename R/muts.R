@@ -643,6 +643,11 @@ compute_MSM <- function(vr,
                         genome = genome_selector(),
                         simplify_set = c("C","A"),
                         ...) {
+
+  ## internal funs
+  ## extracted from https://stackoverflow.com/questions/18813526
+  identicalValue <- function(x,y) if (identical(x,y)) x else FALSE
+
   stopifnot(requireNamespace("VariantAnnotation",quietly = T))
   gr_list = GenomicRanges::split(vr,VariantAnnotation::sampleNames(vr))
 

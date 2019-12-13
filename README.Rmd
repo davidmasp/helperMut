@@ -15,8 +15,9 @@ knitr::opts_chunk$set(
 library(helperMut)
 ```
 
-# helperMut <a href=''><img src='helperMut.png' align="right" height="175" /></a>
+# helperMut <a href=''><img src='helperMut.png' align="right" height="165" /></a>
 
+[![codecov](https://codecov.io/gh/davidmasp/helperMut/branch/develop/graph/badge.svg?token=9jkMksb2mk)](https://codecov.io/gh/davidmasp/helperMut)
 
 ## Overview
 
@@ -32,6 +33,12 @@ field working in mutations or population diversity could be used.
 ```{r installation, eval = FALSE}
 
 ## under devel
+
+```
+
+```{r coverage, eval = FALSE}
+
+covr::package_coverage()
 
 ```
 
