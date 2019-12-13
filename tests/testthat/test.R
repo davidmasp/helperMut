@@ -1,4 +1,19 @@
 
+context("Genome object errors")
+test_that("muts context helpers", {
+  expect_error(get_MS_VR(genome = "not a genome"))
+  expect_error(compute_MSR(vr = "djf"))
+  expect_error(simplify_muts(muts = character()))
+  expect_error(simplify_ctx(muts = character()))
+})
+
+
+context("Simplify ctx")
+test_that("Simplify", {
+  ctx = c("CTC","GGT","GAT")
+  res = simplify_ctx(ctx = ctx)
+  expect_equal(c("GAG","ACC","GAT"),res)
+})
 
 
 context("Mutation context helpers")
@@ -89,6 +104,16 @@ test_that("MSM",{
     alt = c("T","T"),
     sampleNames = c("test1","test2")
   )
+
+  vr_test = vr
+  seqlevelsStyle(vr_test) = "NCBI"
+  # the seqlevels will have different SQlevels
+  expect_error(get_MS_VR(x = vr_test,genome = genome_selector()))
+
+  # contexts need to be simplified
+  expect_error(count_MS(c("TCA>T","TCT>T","TGA>T")))
+  # this is for non-standard mutations
+  expect_error(count_MS(c("TCA>T","TCT>T","TCN>T")))
 
   m1 = expect_warning(compute_MSM(vr))
   m2 = expect_warning(compute_MSM_fast(vr))
