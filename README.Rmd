@@ -53,7 +53,7 @@ mutations = c("TCA>T","TGA>A")
 simplify_muts(mutations)
 ```
 
-### Cosine similarities from PCAWG signatures
+### Cosine similarities from Cosmic signatures
 
 ```{r}
 # generate 3 random sigs

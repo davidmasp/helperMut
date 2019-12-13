@@ -8,9 +8,12 @@ download_signature_set <- function(type = c("cosmic","pcawg"),
 
   # URL / CODES
   cosmic_url = "https://cancer.sanger.ac.uk/cancergenome/assets/signatures_probabilities.txt"
+
   switch (type,
     cosmic = {
-      dat = readr::read_tsv(file = cosmic_url)
+      dat = suppressMessages(suppressWarnings({
+        readr::read_tsv(file = cosmic_url)
+        }))
       sigs = as.matrix(dat[,4:33])
       k1 = dat$Trinucleotide
       alt = stringr::str_extract(pattern = "(?<=\\>)[ACTG]",
@@ -19,6 +22,7 @@ download_signature_set <- function(type = c("cosmic","pcawg"),
       sigs
     }
   ) -> res_sigs
+
   res_sigs
 }
 

@@ -24,10 +24,10 @@ remotes::install_github("davidmasp/helpermut@develop")
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 46.57%
+#> helperMut Coverage: 46.45%
 #> R/plots.R: 0.00%
 #> R/utils.R: 2.86%
-#> R/profiles.R: 14.29%
+#> R/profiles.R: 13.51%
 #> R/genome.R: 16.47%
 #> R/regions.R: 41.51%
 #> R/indels.R: 76.47%
@@ -44,7 +44,7 @@ simplify_muts(mutations)
 #> [1] "TCA>T" "TCA>T"
 ```
 
-### Cosine similarities from PCAWG signatures
+### Cosine similarities from Cosmic signatures
 
 ``` r
 # generate 3 random sigs
@@ -55,23 +55,6 @@ rownames(de_novo_sig) = pos_ms96
 colnames(de_novo_sig) = LETTERS[1:3]
 
 cosmic_sigs = download_signature_set(type = "cosmic")
-#> Warning: Missing column names filled in: 'X34' [34], 'X35' [35],
-#> 'X36' [36], 'X37' [37], 'X38' [38], 'X39' [39], 'X40' [40]
-#> Parsed with column specification:
-#> cols(
-#>   .default = col_double(),
-#>   `Substitution Type` = col_character(),
-#>   Trinucleotide = col_character(),
-#>   `Somatic Mutation Type` = col_character(),
-#>   X34 = col_logical(),
-#>   X35 = col_logical(),
-#>   X36 = col_logical(),
-#>   X37 = col_logical(),
-#>   X38 = col_logical(),
-#>   X39 = col_logical(),
-#>   X40 = col_logical()
-#> )
-#> See spec(...) for full column specifications.
 
 res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
 heatmap(res)
