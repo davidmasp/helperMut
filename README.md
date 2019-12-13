@@ -24,13 +24,14 @@ remotes::install_github("davidmasp/helpermut@develop")
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 48.42%
+#> helperMut Coverage: 46.57%
 #> R/plots.R: 0.00%
 #> R/utils.R: 2.86%
+#> R/profiles.R: 14.29%
 #> R/genome.R: 16.47%
 #> R/regions.R: 41.51%
 #> R/indels.R: 76.47%
-#> R/muts.R: 78.32%
+#> R/muts.R: 78.24%
 ```
 
 ## Usage
@@ -43,6 +44,75 @@ simplify_muts(mutations)
 #> [1] "TCA>T" "TCA>T"
 ```
 
+### Cosine similarities from PCAWG signatures
+
+``` r
+# generate 3 random sigs
+set.seed(42)
+de_novo_sig = runif(n = 96*3,min = 0,max = 1)
+de_novo_sig = matrix(de_novo_sig, ncol = 3)
+rownames(de_novo_sig) = pos_ms96
+colnames(de_novo_sig) = LETTERS[1:3]
+
+cosmic_sigs = download_signature_set(type = "cosmic")
+#> Warning: Missing column names filled in: 'X34' [34], 'X35' [35],
+#> 'X36' [36], 'X37' [37], 'X38' [38], 'X39' [39], 'X40' [40]
+#> Parsed with column specification:
+#> cols(
+#>   .default = col_double(),
+#>   `Substitution Type` = col_character(),
+#>   Trinucleotide = col_character(),
+#>   `Somatic Mutation Type` = col_character(),
+#>   X34 = col_logical(),
+#>   X35 = col_logical(),
+#>   X36 = col_logical(),
+#>   X37 = col_logical(),
+#>   X38 = col_logical(),
+#>   X39 = col_logical(),
+#>   X40 = col_logical()
+#> )
+#> See spec(...) for full column specifications.
+
+res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
+heatmap(res)
+```
+
+![](README-unnamed-chunk-3-1.png)<!-- -->
+
+### Colors and Plots
+
+The standard colors used for mutational profiles in papers are available
+as a variable.
+
+``` r
+tr_colors
+#>       C>G       C>A       C>T       A>T       A>G       A>C 
+#> "#000000" "#00ceff" "#ff2926" "#c9c9c9" "#95d230" "#ffbebe"
+
+tr_colors_ct = tr_colors
+names(tr_colors_ct) = simplify_muts(names(tr_colors_ct),
+                                    simplify_set = c("C","T"))
+
+tr_colors_ct
+#>       C>G       C>A       C>T       T>A       T>C       T>G 
+#> "#000000" "#00ceff" "#ff2926" "#c9c9c9" "#95d230" "#ffbebe"
+```
+
 ## Other relevant packages
 
+Some functionalities implemented in this packages are also available in
+other packages from bioconductor. Hopefully, the current implementation
+in this package will have an added value to the user.
+
+  - [SomaticSignatures](http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html)
+    It extracts Mutation Subtype information from VCFs (restricted to a
+    defined ctx). It also performs NMF/PCA signature extraction which is
+    not covered in helperMut.
+  - [MutationalPatterns](http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html)
+    Same as somaticSignatures.
+
 ## Contribute
+
+If you want to contribute to the package, please fork the repo and
+submit a PR. Currently the package is under development so no features
+are explicitily requested.

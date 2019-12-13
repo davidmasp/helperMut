@@ -53,11 +53,52 @@ mutations = c("TCA>T","TGA>A")
 simplify_muts(mutations)
 ```
 
+### Cosine similarities from PCAWG signatures
+
+```{r}
+# generate 3 random sigs
+set.seed(42)
+de_novo_sig = runif(n = 96*3,min = 0,max = 1)
+de_novo_sig = matrix(de_novo_sig, ncol = 3)
+rownames(de_novo_sig) = pos_ms96
+colnames(de_novo_sig) = LETTERS[1:3]
+
+cosmic_sigs = download_signature_set(type = "cosmic")
+
+res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
+heatmap(res)
+```
+
+
+### Colors and Plots
+
+The standard colors used for mutational profiles in papers are available as 
+a variable.
+
+```{r}
+tr_colors
+
+tr_colors_ct = tr_colors
+names(tr_colors_ct) = simplify_muts(names(tr_colors_ct),
+                                    simplify_set = c("C","T"))
+
+tr_colors_ct
+```
+
+
 
 ## Other relevant packages
 
+Some functionalities implemented in this packages are also available in other
+packages from bioconductor. Hopefully, the current implementation in this
+package will have an added value to the user. 
+
+* [SomaticSignatures](http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html) It extracts Mutation Subtype information from VCFs (restricted to a defined ctx). It also performs NMF/PCA signature extraction which is not covered in helperMut.
+* [MutationalPatterns](http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html) Same as somaticSignatures.
 
 ## Contribute
 
-
+If you want to contribute to the package, please fork the repo and submit
+a PR. Currently the package is under development so no features are explicitily
+requested.
 

@@ -691,24 +691,6 @@ compute_MSM <- function(vr,
   return(res_matrix)
 }
 
-cos_sim_vect = function (x, y) {
-  stopifnot(length(x) == length(y))
-
-  # reorder the vectors based on names
-  base_names=names(x)
-  y = y[base_names]
-
-  # compute the cosine sim
-  if (! is.vector(x) || ! is.vector(y) ) {
-    return(NA);
-  } else {
-    return( ( crossprod(x, y)/sqrt(crossprod(x) * crossprod(y)) ) [1,1] );
-  }
-}
-
-
-
-
 
 identify_mut_aestetics = function(ms, force = FALSE){
   l = unique(nchar(ms))
