@@ -16,23 +16,32 @@ mutations or population diversity could be used.
 ## Installation
 
 ``` r
-
-## under devel
+## If still private, make sure that there is a enviroment variable (.Renviron)
+## with the token (PAT). The name of the variable should be GITHUB_PAT
+remotes::install_github("davidmasp/helpermut@develop")
 ```
 
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 44.58%
+#> helperMut Coverage: 48.42%
 #> R/plots.R: 0.00%
 #> R/utils.R: 2.86%
 #> R/genome.R: 16.47%
 #> R/regions.R: 41.51%
-#> R/muts.R: 70.73%
 #> R/indels.R: 76.47%
+#> R/muts.R: 78.32%
 ```
 
 ## Usage
+
+### Simplify mutation codes
+
+``` r
+mutations = c("TCA>T","TGA>A")
+simplify_muts(mutations)
+#> [1] "TCA>T" "TCA>T"
+```
 
 ## Other relevant packages
 

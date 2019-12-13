@@ -31,8 +31,9 @@ field working in mutations or population diversity could be used.
 ## Installation
 
 ```{r installation, eval = FALSE}
-
-## under devel
+## If still private, make sure that there is a enviroment variable (.Renviron)
+## with the token (PAT). The name of the variable should be GITHUB_PAT
+remotes::install_github("davidmasp/helpermut@develop")
 
 ```
 
@@ -44,6 +45,13 @@ covr::package_coverage()
 
 
 ## Usage
+
+### Simplify mutation codes
+
+```{r}
+mutations = c("TCA>T","TGA>A")
+simplify_muts(mutations)
+```
 
 
 ## Other relevant packages
