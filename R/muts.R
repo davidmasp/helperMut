@@ -319,9 +319,6 @@ simplify_muts <- function(muts,simplify_set = c("C","A"),sep=">") {
   return(res)
 }
 
-
-
-
 #' @describeIn simplify_muts Simplify contexts
 simplify_ctx <- function(ctx,simplify_set = c("C","A")) {
 
