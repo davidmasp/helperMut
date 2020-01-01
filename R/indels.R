@@ -105,109 +105,162 @@ compute_mh_length <- function(vec1,vec2,direction ="+"){
 # 0 3
 # 2 0
 
-library(VariantAnnotation)
-library(helperMut)
-library(magrittr)
-fn = Sys.getenv("HARTWIG_example")
-
-dat_vcf = VariantAnnotation::readVcf(fn)
-
-dat_vr = as(object = dat_vcf,Class = "VRanges")
-dat_indels = dat_vr[dat_vr$set == "indels"]
 
 
+
+### LOCAL RUN TEST!
+# library(VariantAnnotation)
+# library(helperMut)
+# library(magrittr)
+# fn = Sys.getenv("HARTWIG_example")
+#
+# dat_vcf = VariantAnnotation::readVcf(fn)
+#
+# dat_vr = as(object = dat_vcf,Class = "VRanges")
+# dat_indels = dat_vr[dat_vr$set == "indels"]
+# genome = genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
+# indels_classifier(vr = dat_indels,genome = genome)
 
 ## this is assuming that the first letter in REF is shared with ALT and
 ## corresponds to the refseq
+# indels NEED TO BE left-aligned
+indels_classifier <- function(vr,
+                             maxRep = 5,
+                             genome = genome_selector(),
+                             check_format = TRUE){
+  mcols(vr) = NULL
 
-vr = dat_indels
-mcols(vr) = NULL
+  if(check_format){
+    refSeq = getSeq(genome,vr)
+    stopifnot(refSeq == ref(vr))
+  }
 
-params_check_format = T
-if(params_check_format){
-  params_genome = helperMut::genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
-  refSeq = getSeq(params_genome,vr)
-  stopifnot(refSeq == ref(vr))
+  ref_l = nchar(ref(vr))
+  alt_l = nchar(alt(vr))
+
+  stopifnot(!any(ref_l == alt_l))
+  ins_mask = ref_l < alt_l
+
+  vr_ins = vr[ins_mask]
+  vr_del = vr[!ins_mask]
+
+
+  # this is a bit stupid but how my brain understands this
+  vr_indel = c(vr_ins,vr_del)
+  indel_type = c(rep("insertion",length(vr_ins)),
+                 rep("deletion", length(vr_del)))
+
+  ### INSERTIONS ###
+  ins_affected_seq = stringr::str_sub(alt(vr_ins),start = 2)
+  ins_length = nchar(ins_affected_seq)
+
+  ### DELETIONS ###
+  del_affected_seq = stringr::str_sub(ref(vr_del),start = 2)
+  del_lenght = nchar(del_affected_seq)
+
+  ## MICROHOMOLOGY ##
+  # mh can only be computed in +2bp
+  candidate_mh = del_lenght >= 2
+  vr_del_mh = extend(x = vr_del,
+                     upstream = del_lenght-1,
+                     downstream = del_lenght)
+  seq_vec = as.character(getSeq(genome,vr_del_mh))
+  mh_det = detect_microhomology(seq_vector = seq_vec)
+  mh_det = apply(mh_det,1, max)
+  actually_mh = candidate_mh & mh_det > 0
+  ## this values will be uesd later to over-right the repeat values
+  ## from when computing the repeats. It is important to check that their
+  ## repeat length has to be 0!
+
+  ## JOIN, same order than the VR!!! ##
+  indel_affected_seq = c(ins_affected_seq,del_affected_seq)
+  indel_length = c(ins_length,del_lenght)
+  # this is also important as mh is only computed in deletions
+  actually_mh = c(rep(FALSE,length(ins_affected_seq)),actually_mh)
+  mh_det = c(rep(NA,length(ins_affected_seq)),mh_det)
+
+  ## first I compute the first feature the INSERTION SIZE
+  base_pair = dplyr::case_when(
+    indel_length == 1 ~ indel_affected_seq,
+    indel_length >= maxRep ~ as.character(glue::glue("{maxRep}+bp")),
+    TRUE ~ as.character(glue::glue("{indel_length}bp"))
+  )
+
+  ## this don't work directly in the case_when because it evaluates all
+  ## the elements in the vector and then extracts the valid ones.
+  ## For now I think it's best to leave it like this
+  base_pair[indel_length == 1] = simplify_ctx(base_pair[indel_length == 1])
+
+  ## now I compute the second feature, REPEAT SIZE
+  indel_ampli_set = nchar(indel_affected_seq) * maxRep
+
+  # this is assuming left-aligned because it only looks to the right.
+  # (I think this is okay, but maybe we should check)
+  # the specific number depends if indel is ins or deletion
+  # upstream_expansion
+  vr_indel_ex = extend(x = vr_indel,
+                                  upstream = -nchar(ref(vr_indel)),
+                                  downstream = indel_ampli_set)
+
+  flank_seq = getSeq(genome,vr_indel_ex)
+
+  split_pattern = glue::glue("(?<=.{<<nchar(indel_affected_seq)>>})",
+                             .open = "<<",.close = ">>")
+  flank_seq_spl = strsplit(as.character(flank_seq), split_pattern, perl = TRUE)
+
+  purrr::map2_dbl(.x = flank_seq_spl,
+                  .y = indel_affected_seq,
+                  function(flank,indel){
+                    vec_rle = Rle(indel == flank)
+                    if (vec_rle@values[1]){
+                      rpt_size = vec_rle@lengths[1]
+                    } else {
+                      rpt_size = 0
+                    }
+                    return(rpt_size)
+                  }) -> indel_rpt_size
+
+
+  ## adding mh info,
+  ## A repeat will be catched as MH
+  to_change_mask = actually_mh & indel_rpt_size == 0
+
+  ## I also can change to strings now
+  indel_rpt_size = ifelse(indel_rpt_size >= maxRep,
+                          yes =  glue::glue("+{maxRep}"),
+                          no = glue::glue("{indel_rpt_size}"))
+
+  mh_det_str =  ifelse(mh_det >= maxRep,
+                       yes =  glue::glue("+{maxRep}"),
+                       no = glue::glue("{mh_det}"))
+
+  indel_rpt_size[to_change_mask] = mh_det_str[to_change_mask]
+  indel_type[to_change_mask] = "deletion-mh"
+
+  table(indel_rpt_size = factor(indel_rpt_size),
+        base_pair = factor(base_pair),
+        indel_type = factor(indel_type)) %>% as.data.frame() -> res
+
+  # impossible cases
+  # I have to use factors to get 0 in the table step but then this generates
+  # 0 in impossible cases that have to be removed
+
+  mh_1 = res$indel_type == "deletion-mh" & (res$base_pair %in% c("A","C"))
+
+  irs = as.numeric(stringr::str_extract(res$indel_rpt_size,"[:digit:]+"))
+  baseP = as.numeric(stringr::str_extract(res$base_pair,"[:digit:]+"))
+  baseP[is.na(baseP)] = 1
+  mh_2 =  res$indel_type == "deletion-mh" & (irs >= baseP) & (baseP != maxRep)
+  mh_3 = res$indel_type == "deletion-mh" &  irs == 0
+
+  impossible_vec = res[mh_1 | mh_2 | mh_3,][["Freq"]]
+  stopifnot(all(impossible_vec == 0))
+  res = res[!(mh_1 | mh_2 | mh_3),]
+  rownames(res) = NULL
+
+  res
 }
 
-ref_l = nchar(ref(vr))
-alt_l = nchar(alt(vr))
-
-stopifnot(!any(ref_l == alt_l))
-ins_mask = ref_l < alt_l
-
-vr_ins = vr[ins_mask]
-vr_del = vr[!ins_mask]
-
-# this is a bit stupid but how my brain understands this
-vr_indel = c(vr_ins,vr_del)
-indel_type = c(rep("insertion",length(vr_ins)),
-               rep("deletion", length(vr_del)))
-params_maxRep = 5
-
-### INSERTIONS ###
-ins_affected_seq = stringr::str_sub(alt(vr_ins),start = 2)
-ins_length = nchar(ins_affected_seq)
-
-### DELETIONS ###
-del_affected_seq = stringr::str_sub(ref(vr_del),start = 2)
-del_lenght = nchar(del_affected_seq)
-
-## JOIN, same order than the VR!!! ##
-indel_affected_seq = c(ins_affected_seq,del_affected_seq)
-indel_length = c(ins_length,del_lenght)
-
-## first I compute the first feature the INSERTION SIZE
-base_pair = dplyr::case_when(
-  indel_length == 1 ~ indel_affected_seq,
-  indel_length >= params_maxRep ~ as.character(glue::glue("{params_maxRep}+bp")),
-  TRUE ~ as.character(glue::glue("{indel_length}bp"))
-)
-
-## this don't work directly in the case_when because it evaluates all
-## the elements in the vector and then extracts the valid ones.
-## For now I think it's best to leave it like this
-base_pair[indel_length == 1] = simplify_ctx(base_pair[indel_length == 1])
-
-## now I compute the second feature, REPEAT SIZE
-indel_ampli_set = nchar(indel_affected_seq) * params_maxRep
-
-# this is assuming left-aligned because it only looks to the right.
-# (I think this is okay, but maybe we should check)
-# the specific number depends if indel is ins or deletion
-upstream_expansion
-vr_indel_ex = helperMut::extend(x = vr_indel,
-                              upstream = -nchar(ref(vr_indel)),
-                              downstream = indel_ampli_set)
-
-flank_seq = getSeq(params_genome,vr_indel_ex)
-
-split_pattern = glue::glue("(?<=.{<<nchar(indel_affected_seq)>>})",
-                           .open = "<<",.close = ">>")
-flank_seq_spl = strsplit(as.character(flank_seq), split_pattern, perl = TRUE)
-
-purrr::map2_dbl(.x = flank_seq_spl,
-            .y = indel_affected_seq,
-            function(flank,indel){
-              vec_rle = Rle(indel == flank)
-              if (vec_rle@values[1]){
-                rpt_size = vec_rle@lengths[1]
-              } else {
-                rpt_size = 0
-              }
-              return(rpt_size)
-}) -> indel_rpt_size
 
 
-table(indel_rpt_size,base_pair,indel_type) %>% as.data.frame()
-
-
-
-
-
-
-# indels can be left or right aligned (I think)
-indels_clssifier <- function(vr,genome = genome_selector()){
-
-}
 
