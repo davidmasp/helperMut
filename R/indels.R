@@ -109,16 +109,12 @@ compute_mh_length <- function(vec1,vec2,direction ="+"){
 
 
 ### LOCAL RUN TEST!
-# library(VariantAnnotation)
 # library(helperMut)
-# library(magrittr)
 # fn = Sys.getenv("HARTWIG_example")
-#
 # dat_vcf = VariantAnnotation::readVcf(fn)
-#
 # dat_vr = as(object = dat_vcf,Class = "VRanges")
 # dat_indels = dat_vr[dat_vr$set == "indels"]
-# genome = genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
+# genome = helperMut::genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
 # indels_classifier(vr = dat_indels,genome = genome)
 
 ## this is assuming that the first letter in REF is shared with ALT and
@@ -127,16 +123,24 @@ compute_mh_length <- function(vec1,vec2,direction ="+"){
 indels_classifier <- function(vr,
                              maxRep = 5,
                              genome = genome_selector(),
-                             check_format = TRUE){
+                             check_format = TRUE,
+                             groupVar = "group"){
+
+  if (length(groupVar) == 1){
+    groupVar = rep(groupVar,length(vr))
+  } else if (length(groupVar) != length(vr)){
+    stop("wrong group var inputed")
+  }
+
   mcols(vr) = NULL
 
   if(check_format){
-    refSeq = getSeq(genome,vr)
-    stopifnot(refSeq == ref(vr))
+    refSeq = Biostrings::getSeq(genome,vr)
+    stopifnot(refSeq == VariantAnnotation::ref(vr))
   }
 
-  ref_l = nchar(ref(vr))
-  alt_l = nchar(alt(vr))
+  ref_l = nchar(VariantAnnotation::ref(vr))
+  alt_l = nchar(VariantAnnotation::alt(vr))
 
   stopifnot(!any(ref_l == alt_l))
   ins_mask = ref_l < alt_l
@@ -151,11 +155,11 @@ indels_classifier <- function(vr,
                  rep("deletion", length(vr_del)))
 
   ### INSERTIONS ###
-  ins_affected_seq = stringr::str_sub(alt(vr_ins),start = 2)
+  ins_affected_seq = stringr::str_sub(VariantAnnotation::alt(vr_ins),start = 2)
   ins_length = nchar(ins_affected_seq)
 
   ### DELETIONS ###
-  del_affected_seq = stringr::str_sub(ref(vr_del),start = 2)
+  del_affected_seq = stringr::str_sub(VariantAnnotation::ref(vr_del),start = 2)
   del_lenght = nchar(del_affected_seq)
 
   ## MICROHOMOLOGY ##
@@ -164,7 +168,7 @@ indels_classifier <- function(vr,
   vr_del_mh = extend(x = vr_del,
                      upstream = del_lenght-1,
                      downstream = del_lenght)
-  seq_vec = as.character(getSeq(genome,vr_del_mh))
+  seq_vec = as.character(Biostrings::getSeq(genome,vr_del_mh))
   mh_det = detect_microhomology(seq_vector = seq_vec)
   mh_det = apply(mh_det,1, max)
   actually_mh = candidate_mh & mh_det > 0
@@ -199,10 +203,10 @@ indels_classifier <- function(vr,
   # the specific number depends if indel is ins or deletion
   # upstream_expansion
   vr_indel_ex = extend(x = vr_indel,
-                                  upstream = -nchar(ref(vr_indel)),
+                                  upstream = -nchar(VariantAnnotation::ref(vr_indel)),
                                   downstream = indel_ampli_set)
 
-  flank_seq = getSeq(genome,vr_indel_ex)
+  flank_seq = Biostrings::getSeq(genome,vr_indel_ex)
 
   split_pattern = glue::glue("(?<=.{<<nchar(indel_affected_seq)>>})",
                              .open = "<<",.close = ">>")
@@ -239,7 +243,10 @@ indels_classifier <- function(vr,
 
   table(indel_rpt_size = factor(indel_rpt_size),
         base_pair = factor(base_pair),
-        indel_type = factor(indel_type)) %>% as.data.frame() -> res
+        indel_type = factor(indel_type),
+        group = groupVar) -> res_table
+
+  as.data.frame(res_table) -> res
 
   # impossible cases
   # I have to use factors to get 0 in the table step but then this generates
