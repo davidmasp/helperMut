@@ -3,7 +3,10 @@
 
 # helperMut <a href=''><img src='helperMut.png' align="right" height="165" /></a>
 
+[![Build
+Status](https://travis-ci.org/davidmasp/helperMut.svg?branch=develop)](https://travis-ci.org/davidmasp/helperMut)
 [![codecov](https://codecov.io/gh/davidmasp/helperMut/branch/develop/graph/badge.svg?token=9jkMksb2mk)](https://codecov.io/gh/davidmasp/helperMut)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
 ## Overview
 
@@ -24,13 +27,13 @@ remotes::install_github("davidmasp/helpermut@develop")
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 46.45%
+#> helperMut Coverage: 41.87%
 #> R/plots.R: 0.00%
 #> R/utils.R: 2.86%
 #> R/profiles.R: 13.51%
 #> R/genome.R: 16.47%
+#> R/indels.R: 22.22%
 #> R/regions.R: 41.51%
-#> R/indels.R: 76.47%
 #> R/muts.R: 78.24%
 ```
 
