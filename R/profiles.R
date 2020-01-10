@@ -29,11 +29,12 @@ download_signature_set <- function(type = c("cosmic","pcawg"),
 compare_signature_sets <- function(x,y,simplify_set = c("C","A"),sep = ">") {
   ## x and y need to be 2 matrix with signatures as columns
   ## rownames should contain the mut names
-  names_x = rownames(x)
-  names_y = rownames(y)
-
-  rownames(x) = simplify_muts(rownames(x),simplify_set = simplify_set,sep = sep)
-  rownames(y) = simplify_muts(rownames(y),simplify_set = simplify_set,sep = sep)
+  rownames(x) = simplify_muts(rownames(x),
+                              simplify_set = simplify_set,
+                              sep = sep)
+  rownames(y) = simplify_muts(rownames(y),
+                              simplify_set = simplify_set,
+                              sep = sep)
 
   y = y[rownames(x),]
 

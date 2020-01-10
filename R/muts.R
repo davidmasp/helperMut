@@ -548,7 +548,7 @@ fisher_muts <- function(obs,total){
     rest_nomut = sum(nomut) - nomut
   ) %>% dplyr::select(-total)
 
-  res_df = purrr::map_df(1:nrow(df),function(i){
+  res_df = purrr::map_df(seq_len(nrow(df)),function(i){
     # critical step. depends inside the function tho
     tmp_mat = matrix(as.numeric(df[i,]),ncol =2)
     res_df = fisher.test(tmp_mat) %>% broom::tidy()
