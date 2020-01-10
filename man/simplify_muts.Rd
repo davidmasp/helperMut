@@ -15,6 +15,8 @@ simplify_ctx(ctx, simplify_set = c("C", "A"))
 \item{simplify_set}{The reference base set. (must be 2)}
 
 \item{sep}{The string that separates context and alternative}
+
+\item{ctx}{A character vector containing contexts}
 }
 \value{
 A set of simplified mutations

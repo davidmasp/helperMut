@@ -240,6 +240,7 @@ correct_MSR_TP <- function(x,tp){
 #' It also translate a mutation set to an alternative refernce set (for instance, C T based to C A based.)
 #'
 #' @param muts A character vector containing mutations
+#' @param ctx A character vector containing contexts
 #' @param simplify_set The reference base set. (must be 2)
 #' @param sep The string that separates context and alternative
 #'
@@ -379,6 +380,7 @@ simplify_ctx <- function(ctx,simplify_set = c("C","A")) {
 #' @param simplify Boolean to simplify or not the result
 #' @param simplify_set Simpliy reference set if simplify is true.
 #' @param sep string to separate the context and the alternative allele
+#' @param strict removes impossible mutation types from the output
 #'
 #' @return a mutation set with all the possible mutation types encoded.
 #' @export
@@ -486,8 +488,6 @@ get_GR_from_gene_set <- function(GS,txdb){
 
 
 get_gene_regions_occurences <- function(GR,k,ref_seq = NULL){
-  library(GenomicRanges)
-  library(magrittr)
 
   if (is.null(ref_seq)){
     assembly = unique(seqinfo(GR)@genome)
@@ -573,7 +573,6 @@ fisher_muts <- function(obs,total){
 #' @param sep A string to separate the mutation context to the alternative base.
 #' @param genome A BSgenome object installed in the local computer.
 #' @param simplify_set Set of base pairs used to simplify the mutation calls.
-#' @param ...
 #'
 #' @return A count matrix with samples in rows and mutation subtypes in columns
 #' @export
@@ -583,8 +582,7 @@ compute_MSM_fast = function(vr,
                             k=1,
                             sep = ">",
                             genome = genome_selector(),
-                            simplify_set = c("C","A"),
-                            ...) {
+                            simplify_set = c("C","A")) {
 
   # credit to somaticSignatures
 
@@ -614,13 +612,12 @@ compute_MSM_fast = function(vr,
 #'
 #' @param msm MSM matrix from compute_MSM_fast
 #' @param P vector with the positives per row
-#' @param ...
 #'
 #' @return
 #' @export
 #'
 #' @examples
-correct_MSM_P <- function(msm,P,...){
+correct_MSM_P <- function(msm,P){
   freqs = t(apply(msm, 1, function(row){
     row/sum(row)
   }))

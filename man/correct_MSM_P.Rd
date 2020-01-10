@@ -4,14 +4,12 @@
 \alias{correct_MSM_P}
 \title{Correct MSM per total positives}
 \usage{
-correct_MSM_P(msm, P, ...)
+correct_MSM_P(msm, P)
 }
 \arguments{
 \item{msm}{MSM matrix from compute_MSM_fast}
 
 \item{P}{vector with the positives per row}
-
-\item{...}{}
 }
 \value{
 
