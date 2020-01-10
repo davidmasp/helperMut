@@ -252,7 +252,7 @@ correct_MSR_TP <- function(x,tp){
 #' simplify_muts(mutset)
 #'
 #' ctxset = c("ACT","TTA")
-#' simplify_ctx(mutset)
+#' simplify_ctx(ctxset)
 #'
 simplify_muts <- function(muts,simplify_set = c("C","A"),sep=">") {
 
