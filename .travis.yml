@@ -1,15 +1,21 @@
-language: R
+language: r
+# this means these steps will be executed:
+# https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps
+
 sudo: false
 cache: packages
 
 r_github_packages:
 - jimhester/lintr
+- r-lib/covr
 
 after_script:
     - R CMD INSTALL $PKG_TARBALL
     - Rscript -e 'lintr::lint_package()'
 after_success:
-  - Rscript -e 'library(covr); codecov()'
+  - Rscript -e 'covr::codecov()'
+
+
 #  - R CMD BiocCheck .
 
 # before_cache: Rscript -e 'remotes::install_cran("pkgdown")'
