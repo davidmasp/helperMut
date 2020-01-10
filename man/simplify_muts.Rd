@@ -34,6 +34,6 @@ mutset = c("ACT>T","TTA>C")
 simplify_muts(mutset)
 
 ctxset = c("ACT","TTA")
-simplify_ctx(mutset)
+simplify_ctx(ctxset)
 
 }
