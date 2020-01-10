@@ -45,6 +45,7 @@ genome = genome_selector(installed = T)
 # after that it will be saved as an object
 genome = genome_selector(available = T)
 
+
 # select the desired genome package
 genome = genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
 }
