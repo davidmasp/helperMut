@@ -9,8 +9,7 @@ compute_MSM_fast(
   k = 1,
   sep = ">",
   genome = genome_selector(),
-  simplify_set = c("C", "A"),
-  ...
+  simplify_set = c("C", "A")
 )
 }
 \arguments{
@@ -23,8 +22,6 @@ compute_MSM_fast(
 \item{genome}{A BSgenome object installed in the local computer.}
 
 \item{simplify_set}{Set of base pairs used to simplify the mutation calls.}
-
-\item{...}{}
 }
 \value{
 A count matrix with samples in rows and mutation subtypes in columns

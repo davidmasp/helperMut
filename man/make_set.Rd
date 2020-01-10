@@ -20,6 +20,8 @@ make_set(
 \item{simplify_set}{Simpliy reference set if simplify is true.}
 
 \item{sep}{string to separate the context and the alternative allele}
+
+\item{strict}{removes impossible mutation types from the output}
 }
 \value{
 a mutation set with all the possible mutation types encoded.

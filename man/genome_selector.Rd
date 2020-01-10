@@ -27,10 +27,10 @@ genome_selector(
 A BSgenome object.
 }
 \description{
-Wrapper function for a BSgenome usage. It can handle interactive downloads, 
+Wrapper function for a BSgenome usage. It can handle interactive downloads,
 listing of available and installed reference sequences.
 
-Main function is to retrieve a genome object without loading the 
+Main function is to retrieve a genome object without loading the
 whole package, can be done through aliases or interactive selection.
 }
 \examples{

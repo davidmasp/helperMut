@@ -17,9 +17,12 @@ library(helperMut)
 
 # helperMut <a href=''><img src='helperMut.png' align="right" height="165" /></a>
 
+<!-- badges: start -->
 [![Build Status](https://travis-ci.org/davidmasp/helperMut.svg?branch=develop)](https://travis-ci.org/davidmasp/helperMut)
 [![codecov](https://codecov.io/gh/davidmasp/helperMut/branch/develop/graph/badge.svg?token=9jkMksb2mk)](https://codecov.io/gh/davidmasp/helperMut)
-[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
+
 
 
 ## Overview
