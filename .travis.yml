@@ -5,6 +5,11 @@ language: r
 sudo: false
 cache: packages
 
+branches:
+  only:
+  - master
+  - develop
+
 r_github_packages:
 - jimhester/lintr
 - r-lib/covr
