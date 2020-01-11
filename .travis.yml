@@ -1,14 +1,16 @@
+branches:
+  only:
+  - master
+  - develop
+# only this branches will build
+
 language: r
 # this means these steps will be executed:
 # https://docs.travis-ci.com/user/languages/r/#customizing-the-travis-build-steps
 
 sudo: false
 cache: packages
-
-branches:
-  only:
-  - master
-  - develop
+warnings_are_errors: false
 
 r_github_packages:
 - jimhester/lintr
