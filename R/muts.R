@@ -97,8 +97,18 @@ mutationContext <- function(vr,
 #'
 #' @examples
 extend <- function(x, upstream, downstream) {
-  if (any(BiocGenerics::strand(x) == "*"))
+
+  # I have to do this because they don't let me use the strand in a VRanges
+  # object, therefore we need to translate to GR before extending
+  # see here -> https://support.bioconductor.org/p/127590/
+  if (is(object = x,class2 = "VRanges")){
+    x = as(object = x,Class = "GRanges")
+  }
+
+  if (any(BiocGenerics::strand(x) == "*")){
     warning("'*' ranges were treated as '+'")
+  }
+
   on_plus <- BiocGenerics::strand(x) == "+" | BiocGenerics::strand(x) == "*"
   new_start <- BiocGenerics::start(x) - ifelse(on_plus, upstream, downstream)
   new_end <- BiocGenerics::end(x) + ifelse(on_plus, downstream, upstream)
@@ -137,6 +147,18 @@ get_MS_VR <- function(x,
 
   # from here can substitute for simplify_muts function
   alt_seq = VariantAnnotation::alt(x)
+
+  ## if the strand is minus, I need to switch the alt alelle.
+  if (any(strand(x) == "-")){
+    warning("feature in development")
+    alt_seq_dnastringset = Biostrings::DNAStringSet(alt_seq)
+    alt_seq_rc = Biostrings::reverseComplement(alt_seq_dnastringset)
+    alt_seq = ifelse(test = strand(x) == "-",
+                     yes = alt_seq_rc,
+                     no = alt_seq)
+  }
+
+
   #browser()
   muts = paste(seq,alt_seq,sep = sep)
 

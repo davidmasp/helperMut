@@ -93,6 +93,35 @@ test_that("cosine sim", {
   expect_equal(cos_sim_vect(c("a"=1,"b"=10,"c"=100),c("a"=1,"c"=100,"b"=10)),1)
 })
 
+context("get_MS_VR")
+test_that("MS",{
+  library(VariantAnnotation)
+  genome = BSgenome.Hsapiens.UCSC.hg19::BSgenome.Hsapiens.UCSC.hg19
+  ## GGA
+  ## GAG
+  vr = VRanges(seqnames = "chr1",
+               ranges = IRanges::IRanges(start = c(186716278,186716284),
+                                         width = c(1)),
+               ref = c("A","G"),
+               alt = c("T","T"))
+  res1 = expect_warning(get_MS_VR(x = vr,genome = genome))
+
+  strand(vr) = "+"
+  res2 = get_MS_VR(x = vr,genome = genome)
+
+  strand(vr) = c("-","+")
+  res3 = expect_warning(get_MS_VR(x = vr,genome = genome,keep_strand = TRUE))
+
+  expect_equal(res1,res2)
+  expect_equal(res1,res3)
+  expect_equal(res1,c("TCC>A","GAG>T"))
+
+  strand(vr) = c("+","-")
+  res4 = expect_warning(get_MS_VR(x = vr,genome = genome,keep_strand = TRUE))
+  expect_equal(res4,c("GGA>T","CTC>A"))
+
+})
+
 context("MSM")
 test_that("MSM",{
   library(VariantAnnotation)
@@ -108,7 +137,8 @@ test_that("MSM",{
   vr_test = vr
   seqlevelsStyle(vr_test) = "NCBI"
   # the seqlevels will have different SQlevels
-  expect_error(get_MS_VR(x = vr_test,genome = genome_selector(alias="Hsapiens.UCSC.hg19")))
+  expect_error(get_MS_VR(x = vr_test,
+                         genome = genome_selector(alias="Hsapiens.UCSC.hg19")))
 
   # contexts need to be simplified
   expect_error(count_MS(c("TCA>T","TCT>T","TGA>T")))
