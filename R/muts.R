@@ -169,13 +169,45 @@ get_MS_VR <- function(x,
   return(muts)
 }
 
+#' @describeIn str_reverse_complement Rc of a mutation string
+ms_reverse_complement <- function(ms){
+  # assumes sep is nchar 1
 
+  nchar_ms = unique(nchar(ms))
+  K = nchar_ms - 2
 
+  sep = unique(substr(ms,nchar_ms-1,nchar_ms-1))
+  alt = substr(ms,nchar_ms,nchar_ms)
+  ctx = substr(ms,1,K)
+
+  ctx_rc = str_reverse_complement(str = ctx)
+  alt_rc = str_reverse_complement(str = alt)
+
+  paste(ctx_rc,alt_rc,sep = sep)
+}
+
+#' Reverse complement of a string
+#'
+#' It returns the reverse complement of a context or mutation string.
+#'
+#' Internally it transforms the string to DNAstringSet from Biostrings.
+#'
+#' @param str a sequence character vector
+#' @param ms a mutation character vector (assumes 1 separation character)
+#'
+#' @return A string with the reverseComplement of the input
+#' @export
+#'
+#' @examples
+#'
+#' str_reverse_complement(c("CCC","TTT"))
+#'
+#' ms_reverse_complement(c("CCC>T","TTT>A"))
+#'
 str_reverse_complement <- function(str){
-  as.character(
-    Biostrings::reverseComplement(
-      Biostrings::DNAString(str)
-  ))
+  dna_set = Biostrings::DNAStringSet(str)
+  dna_set_rc = Biostrings::reverseComplement(dna_set)
+  as.character(dna_set_rc)
 }
 
 

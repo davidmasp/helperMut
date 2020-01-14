@@ -244,3 +244,16 @@ test_that("regions", {
   expect_false(all(start(res) == start(gr_reg_test)))
 })
 
+
+context("ms str")
+test_that("str functions", {
+  input = "ACGGT"
+  output = "ACCGT"
+
+  expect_equal(str_reverse_complement(input),output)
+
+  input = "ACGGT>T"
+  output = "ACCGT>A"
+
+  expect_equal(ms_reverse_complement(input),output)
+})
