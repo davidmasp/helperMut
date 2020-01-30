@@ -150,14 +150,14 @@ test_that("MSM",{
   m2 = expect_warning(compute_MSM_fast(vr,genome = genome))
   expect_equal(m1,m2)
 
-  m3 = mutationContext(vr = vr,
-                        ref = genome,
-                        simplify_set = c("C","A"))
+  m3 = SomaticSignatures::mutationContext(vr = vr,
+                        ref = genome)
   m3 = glue::glue("{stringr::str_sub(m3$context,1,1)}{stringr::str_sub(m3$alteration,1,1)}{stringr::str_sub(m3$context,3,3)}>{stringr::str_sub(m3$alteration,2,2)}")
-  m4 = expect_warning(get_MS_VR(vr,genome = genome))
+
+  m4 = expect_warning(get_MS_VR(vr,genome = genome,simplify_set = c("C","T")))
   expect_equal(as.character(m3),m4)
 
-  expect_equal(m4,c("TAA>T","CCA>A"))
+  expect_equal(m4,c("TTA>A","CCA>A"))
 
   expect_equal(sum(correct_MSM_P(m2,c(10,100))), 110)
 })

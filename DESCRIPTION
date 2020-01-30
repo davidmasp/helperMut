@@ -41,5 +41,6 @@ Imports:
     scales,
     tibble,
     testthat,
-    readr
+    readr,
+    SomaticSignatures
 RoxygenNote: 7.0.0
