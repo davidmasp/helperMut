@@ -1,8 +1,6 @@
 # INDELS
 #
 # This code should wrap up indel related funs.
-#
-# Code comes originally from http://fsupeksvr.irbbarcelona.pcb.ub.es/gitlab/dmas/HealthyTissues/blob/master/utils.R
 
 
 # indel_microhomology_VR(dat[1:100],
