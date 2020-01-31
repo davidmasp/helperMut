@@ -30,7 +30,6 @@
 #'
 #' @export
 #'
-#' @examples
 #'
 shufle_regions <- function(regions,mask) {
   # hereI should check that regions have a unique match in the mask
@@ -131,7 +130,6 @@ shufle_regions <- function(regions,mask) {
 #'
 #' @export
 #'
-#' @examples
 #'
 shufle_regions2 <- function(regions,mask) {
   # hereI should check that regions have a unique match in the mask

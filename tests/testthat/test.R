@@ -246,7 +246,10 @@ test_that("regions", {
 })
 
 
-context("ms str")
+
+
+
+context("Muts")
 test_that("str functions", {
   input = "ACGGT"
   output = "ACCGT"
@@ -260,9 +263,85 @@ test_that("str functions", {
 })
 
 
+
+context("Muts")
+test_that("extract params", {
+  expect_error(helperMut::identify_mut_aestetics(c("TCA>T",
+                                                   "CCA>T",
+                                                   "TTT>A",
+                                                   "TNA>C")))
+
+  val = helperMut::identify_mut_aestetics(c("TCA>T",
+                                            "CCA>T",
+                                            "TTT>A",
+                                            "TNA>C"),force = T)
+
+  expect_true("N" %in% val$mset_ref)
+
+  val = helperMut::identify_mut_aestetics(c("TCA>T",
+                                            "CCA>T",
+                                            "TTT>A"))
+
+  expect_true(all(c("C","T") %in% val$mset_ref))
+
+  expect_equal(val$k , 1)
+  expect_equal(val$K , 3)
+  expect_equal(val$sep , ">")
+
+  val = helperMut::identify_mut_aestetics(c("ATCAA~T",
+                                           "CCCAC~T",
+                                           "CTTTC~A"))
+
+  expect_equal(val$k , 2)
+  expect_equal(val$K , 5)
+  expect_equal(val$sep , "~")
+
+  val = helperMut::identify_mut_aestetics(c("C~T",
+                                            "C~T",
+                                            "T~A"))
+
+  expect_equal(val$k , 0)
+  expect_equal(val$K , 1)
+  expect_equal(val$sep , "~")
+
+})
+
+
+
+
 context("data")
 test_that("data is loaded correctly", {
   expect_equal(length(order_ms96_supekCell2017),96)
   expect_equal(length(order_ms96_cosmicSignatures),96)
   expect_equal(length(tr_colors),6)
 })
+
+
+context("genome")
+test_that("genome selector", {
+
+  test = genome_selector()
+  expect_equal(length(seqnames(test)), 93)
+
+})
+
+
+
+
+context("utils")
+test_that("binom test", {
+
+  resdf = binom_test(x = c(1,2,3),n = c(2,4,6))
+  expect_true(all(resdf$estimate == 0.5))
+  expect_true(all(resdf$p.value == 1))
+
+  resdf = binom_test(x = c(1,2,3),n = c(2,4,6),p = rep(0.1,3))
+  expect_true(all(resdf$p.value < 0.2))
+
+  binom.test(x = 1,n = 2,p = .1)$p.value -> singleP
+  resdf$p.value[1] -> multP
+  expect_equal(singleP,multP)
+})
+
+
+

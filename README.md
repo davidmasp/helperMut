@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# helperMut <a href=''><img src='helperMut.png' align="right" height="165" /></a>
+# helperMut <a href=''><img src='man/figures/helperMut.png' align="right" height="165" /></a>
 
 <!-- badges: start -->
 
@@ -31,14 +31,13 @@ remotes::install_github("davidmasp/helpermut@develop")
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 34.92%
-#> R/plots.R: 0.00%
-#> R/utils.R: 2.86%
+#> helperMut Coverage: 52.39%
 #> R/profiles.R: 12.82%
 #> R/genome.R: 16.47%
 #> R/indels.R: 22.22%
+#> R/utils.R: 27.78%
 #> R/regions.R: 41.51%
-#> R/muts.R: 61.27%
+#> R/muts.R: 81.63%
 ```
 
 ## Usage
@@ -58,7 +57,7 @@ simplify_muts(mutations)
 set.seed(42)
 de_novo_sig = runif(n = 96*3,min = 0,max = 1)
 de_novo_sig = matrix(de_novo_sig, ncol = 3)
-rownames(de_novo_sig) = pos_ms96
+rownames(de_novo_sig) = generate_mut_types(k = 1)
 colnames(de_novo_sig) = LETTERS[1:3]
 
 cosmic_sigs = download_signature_set(type = "cosmic")
@@ -67,7 +66,7 @@ res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
 heatmap(res)
 ```
 
-![](README-unnamed-chunk-3-1.png)<!-- -->
+![](man/figures/README-unnamed-chunk-3-1.png)<!-- -->
 
 ### Colors and Plots
 

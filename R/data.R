@@ -39,3 +39,11 @@
 "tr_colors"
 
 
+
+#' IUPAC DNA codes
+#'
+#' A list of each DNA letter and its representative set in ACTG letters.
+#'
+#' @format A list with all IUPAC DNA codes and its meanings
+#' @source \url{https://www.bioinformatics.org/sms/iupac.html}
+"dna_codes"

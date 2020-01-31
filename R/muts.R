@@ -17,7 +17,7 @@
 #'
 #' It also works for \link[VariantAnnotation]{VRanges} objects.
 #'
-#' extracted from \link{https://support.bioconductor.org/p/78652/}
+#' extracted from \url{https://support.bioconductor.org/p/78652/}
 #
 #'
 #' @param x A GRanges or VRanges object
@@ -450,23 +450,7 @@ make_set <- function(x,
   return(ms_set)
 }
 
-dna_codes <- list(
-  "A" = c("A"),
-  "C" = c("C"),
-  "T" = c("T"),
-  "G" = c("G"),
-  "S" = c("C", "G"), # strong
-  "W" = c("A", "T"), # weak
-  "M" = c("A", "C"), # amino
-  "K" = c("G", "T"), #keto
-  "R" = c("A", "G"), #purine
-  "Y" = c("C", "T"), # pyrimidine
-  "B" = c("C", "T","G"), # not A
-  "D" = c("A", "T","G"), # not C
-  "H" = c("A", "T","C"), # not G
-  "V" = c("A", "G","C"), # not T
-  "N" = c("A", "C", "G", "T")
-)
+
 
 get_GR_from_gene_set <- function(GS,txdb){
   g = genes(txdb,
@@ -602,7 +586,6 @@ compute_MSM_fast = function(vr,
 #' @param msm MSM matrix from compute_MSM_fast
 #' @param P vector with the positives per row
 #'
-#' @return
 #' @export
 #'
 #' @examples
@@ -675,6 +658,23 @@ compute_MSM <- function(vr,
 }
 
 
+#' Detect mutation subtype params
+#'
+#' From a single string of mutations detect which parameters, such as k and
+#' sep are being used.
+#'
+#' It also identifies the reference set of bases used as central position.s
+#'
+#' @param ms A mutation subtype version (any k)
+#' @param force Avoid error if non-standard mutations are used as a central position, such as TNA>C
+#'
+#' @return A list with the extracted parameters
+#' @export
+#'
+#' @examples
+#'
+#' helperMut::identify_mut_aestetics(c("TCA>T","CCA>T","TTT>A"))
+#'
 identify_mut_aestetics = function(ms, force = FALSE){
   l = unique(nchar(ms))
   stopifnot(length(l)==1)

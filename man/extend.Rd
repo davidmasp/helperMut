@@ -22,5 +22,5 @@ of nucleotides defined in the upstream or downstream of each range.
 
 It also works for \link[VariantAnnotation]{VRanges} objects.
 
-extracted from \link{https://support.bioconductor.org/p/78652/}
+extracted from \url{https://support.bioconductor.org/p/78652/}
 }

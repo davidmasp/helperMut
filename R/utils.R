@@ -37,22 +37,34 @@ jaccard <- function(x,y){
 
 # STATS ===============
 
+#' pseudo-vectorized binomial test
+#'
+#' This function is a wrapper of the \link[stats]{binom.test}
+#' function that can be used with vectors.
+#'
+#' @param x x for binom test
+#' @param n n for binom test
+#' @param p success probability
+#' @param ...
+#'
+#' @return a dataframe with statistics from the binom.test.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' binom_test(x = c(1,2,3),n = c(2,4,6))
+#'
 binom_test <- function(x,n,p=NULL,...){
-  if (!all(c(requireNamespace("broom", quietly = TRUE),
-             requireNamespace("purrr", quietly = TRUE)))){
-    print("Dependencies failed.")
-  }
 
   if (is.null(p)){
     res = purrr::map_df(1:length(x),function(i){
-      broom::tidy(binom.test(x = x[i],n = n[i],...))
+      broom::tidy(stats::binom.test(x = x[i],n = n[i],...))
     })
   } else if (!is.null(n) ){
-    #if (any(x == n))({stop("Error when x = n")})
-    # if pvalue is FALSE then it goes to 0
     res = purrr::map_df(1:length(x),function(i){
       tryCatch({
-        test = binom.test(x = x[i],n = n[i],p = p[i],...)
+        test = stats::binom.test(x = x[i],n = n[i],p = p[i],...)
         if (is.logical(test$p.value)){
           test$p.value = as.numeric(test$p.value)
         }
@@ -63,6 +75,10 @@ binom_test <- function(x,n,p=NULL,...){
   }
   return(res)
 }
+
+
+
+
 
 get_k_freq <- function(vr,k,wl,genome = genome_selector(),...){
 
