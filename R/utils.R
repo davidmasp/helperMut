@@ -7,6 +7,9 @@
 # \$$$$$$  |   $$ |   $$$$$$\ $$$$$$$$\\$$$$$$  |
 #  \______/    \__|   \______|\________|\______/
 
+
+
+
 .lenunique <- function(x){
   length(unique(x))
 }
@@ -45,7 +48,7 @@ jaccard <- function(x,y){
 #' @param x x for binom test
 #' @param n n for binom test
 #' @param p success probability
-#' @param ...
+#' @param ... further params for binom.test
 #'
 #' @return a dataframe with statistics from the binom.test.
 #'
@@ -75,10 +78,6 @@ binom_test <- function(x,n,p=NULL,...){
   }
   return(res)
 }
-
-
-
-
 
 get_k_freq <- function(vr,k,wl,genome = genome_selector(),...){
 

@@ -34,13 +34,8 @@ Imports:
     tidyr,
     tidyselect,
     VariantAnnotation (>= 1.27.2),
-    cowplot,
-    forcats,
-    ggplot2,
-    S4Vectors,
-    scales,
-    tibble,
     testthat,
     readr,
-    SomaticSignatures
+    SomaticSignatures,
+    synapser
 RoxygenNote: 7.0.0

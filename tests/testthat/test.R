@@ -1,5 +1,26 @@
+#$$$$$$$$\ $$$$$$$$\  $$$$$$\ $$$$$$$$\  $$$$$$\
+#\__$$  __|$$  _____|$$  __$$\\__$$  __|$$  __$$\
+#   $$ |   $$ |      $$ /  \__|  $$ |   $$ /  \__|
+#   $$ |   $$$$$\    \$$$$$$\    $$ |   \$$$$$$\
+#   $$ |   $$  __|    \____$$\   $$ |    \____$$\
+#   $$ |   $$ |      $$\   $$ |  $$ |   $$\   $$ |
+#   $$ |   $$$$$$$$\ \$$$$$$  |  $$ |   \$$$$$$  |
+#   \__|   \________| \______/   \__|    \______/
 
-context("Genome object errors")
+
+## README:
+##
+## I am not entirely sure about the meaning of context and the test that
+## text argument. For now, I will organize this with a section per R/script.R
+## and each "group" will have the same context. The name of the test that
+## will be diferent.
+##
+
+
+
+# GENOME ------------------------------------------------------------------
+
+context("genome")
 test_that("muts context helpers", {
   expect_error(get_MS_VR(genome = "not a genome"))
   expect_error(compute_MSR(vr = "djf"))
@@ -8,7 +29,35 @@ test_that("muts context helpers", {
 })
 
 
-context("Simplify ctx")
+context("genome")
+test_that("genome selector", {
+
+  test = genome_selector()
+  expect_equal(length(seqnames(test)), 93)
+
+})
+
+
+
+
+# MUTS --------------------------------------------------------------------
+
+
+context("muts")
+test_that("str functions", {
+  input = "ACGGT"
+  output = "ACCGT"
+
+  expect_equal(str_reverse_complement(input),output)
+
+  input = "ACGGT>T"
+  output = "ACCGT>A"
+
+  expect_equal(ms_reverse_complement(input),output)
+})
+
+
+context("muts")
 test_that("Simplify", {
   ctx = c("CTC","GGT","GAT")
   res = simplify_ctx(ctx = ctx)
@@ -16,7 +65,7 @@ test_that("Simplify", {
 })
 
 
-context("Mutation context helpers")
+context("muts")
 test_that("muts context helpers", {
   # this is to prove that the mutation types are indeed alphabetical
   all_mut_types = generate_mut_types(1,simplify_set = c("C","T"))
@@ -81,7 +130,7 @@ test_that("muts context helpers", {
 })
 
 
-context("t3")
+context("muts")
 test_that("MS", {
   expect_equal(make_set("ART>T"),c("AAT>T","ACT>A"))
   expect_equal(make_set("YTCAA>T"),c("CTCAA>T","TTCAA>T"))
@@ -89,12 +138,7 @@ test_that("MS", {
 })
 
 
-context("t5")
-test_that("cosine sim", {
-  expect_equal(cos_sim_vect(c("a"=1,"b"=10,"c"=100),c("a"=1,"c"=100,"b"=10)),1)
-})
-
-context("get_MS_VR")
+context("muts")
 test_that("MS",{
   library(VariantAnnotation)
   genome = BSgenome.Hsapiens.UCSC.hg19::BSgenome.Hsapiens.UCSC.hg19
@@ -123,7 +167,7 @@ test_that("MS",{
 
 })
 
-context("MSM")
+context("muts")
 test_that("MSM",{
   library(VariantAnnotation)
   vr = VariantAnnotation::VRanges(
@@ -152,7 +196,7 @@ test_that("MSM",{
   expect_equal(m1,m2)
 
   m3 = SomaticSignatures::mutationContext(vr = vr,
-                        ref = genome)
+                                          ref = genome)
   m3 = glue::glue("{stringr::str_sub(m3$context,1,1)}{stringr::str_sub(m3$alteration,1,1)}{stringr::str_sub(m3$context,3,3)}>{stringr::str_sub(m3$alteration,2,2)}")
 
   m4 = expect_warning(get_MS_VR(vr,genome = genome,simplify_set = c("C","T")))
@@ -164,17 +208,7 @@ test_that("MSM",{
 })
 
 
-context("cosine")
-test_that("cosine sim", {
-  expect_equal(jaccard(c("a","a","c"),c("a")),.5)
-
-
-  res = .lenunique(c("A","C","A"))
-  expect_equal(res,2)
-})
-
-
-context("make sets")
+context("muts")
 test_that("sets strict",{
   set_test = expect_warning(make_set(x = "NNN>N",simplify = T))
   expect_equal(length(unique(set_test)),96)
@@ -193,31 +227,53 @@ test_that("sets strict",{
 })
 
 
-# test utils
 
-context("microhomology")
-test_that("microhomology", {
-  seqvec = c("CTACTCGTTCGA","TTTCCTACTATTTCCGGGTAGGGGGGGGTA")
+context("muts")
+test_that("extract params", {
+  expect_error(helperMut::identify_mut_aestetics(c("TCA>T",
+                                                   "CCA>T",
+                                                   "TTT>A",
+                                                   "TNA>C")))
 
-  res = detect_microhomology(seqvec)
-  expect_equal(res[1,1],0)
-  expect_equal(res[1,2],3)
-  expect_equal(res[2,1],2)
-  expect_equal(res[2,2],0)
+  val = helperMut::identify_mut_aestetics(c("TCA>T",
+                                            "CCA>T",
+                                            "TTT>A",
+                                            "TNA>C"),force = T)
 
-  seqvec_err = c("CTACTGTTCGA","TTTCCTACTATTTCCGGTAGGGGGGGGTA")
-  expect_error(detect_microhomology(seqvec_err))
+  expect_true("N" %in% val$mset_ref)
+
+  val = helperMut::identify_mut_aestetics(c("TCA>T",
+                                            "CCA>T",
+                                            "TTT>A"))
+
+  expect_true(all(c("C","T") %in% val$mset_ref))
+
+  expect_equal(val$k , 1)
+  expect_equal(val$K , 3)
+  expect_equal(val$sep , ">")
+
+  val = helperMut::identify_mut_aestetics(c("ATCAA~T",
+                                            "CCCAC~T",
+                                            "CTTTC~A"))
+
+  expect_equal(val$k , 2)
+  expect_equal(val$K , 5)
+  expect_equal(val$sep , "~")
+
+  val = helperMut::identify_mut_aestetics(c("C~T",
+                                            "C~T",
+                                            "T~A"))
+
+  expect_equal(val$k , 0)
+  expect_equal(val$K , 1)
+  expect_equal(val$sep , "~")
+
 })
 
-#
-# # tests
-#
-# detect_microhomology(seqvec)
 
-# 0 3
-# 2 0
-#
 
+
+# REGIONS -----------------------------------------------------------------
 
 context("regions")
 test_that("regions", {
@@ -245,69 +301,31 @@ test_that("regions", {
   expect_false(all(start(res) == start(gr_reg_test)))
 })
 
+# PROFILES ----------------------------------------------------------------
 
-
-
-
-context("Muts")
-test_that("str functions", {
-  input = "ACGGT"
-  output = "ACCGT"
-
-  expect_equal(str_reverse_complement(input),output)
-
-  input = "ACGGT>T"
-  output = "ACCGT>A"
-
-  expect_equal(ms_reverse_complement(input),output)
+context("profiles")
+test_that("cosine sim", {
+  expect_equal(cos_sim_vect(c("a"=1,"b"=10,"c"=100),c("a"=1,"c"=100,"b"=10)),1)
+  expect_warning(cos_sim_vect(x = c(1,2,3),c(2,3,4)))
+  expect_error(cos_sim_vect(x = "jshdfs",y = matrix()))
 })
 
 
+context("profiles")
+test_that("download sets", {
+  expect_error(download_signature_set(version = "v3",synapse_apiKey = NULL))
 
-context("Muts")
-test_that("extract params", {
-  expect_error(helperMut::identify_mut_aestetics(c("TCA>T",
-                                                   "CCA>T",
-                                                   "TTT>A",
-                                                   "TNA>C")))
-
-  val = helperMut::identify_mut_aestetics(c("TCA>T",
-                                            "CCA>T",
-                                            "TTT>A",
-                                            "TNA>C"),force = T)
-
-  expect_true("N" %in% val$mset_ref)
-
-  val = helperMut::identify_mut_aestetics(c("TCA>T",
-                                            "CCA>T",
-                                            "TTT>A"))
-
-  expect_true(all(c("C","T") %in% val$mset_ref))
-
-  expect_equal(val$k , 1)
-  expect_equal(val$K , 3)
-  expect_equal(val$sep , ">")
-
-  val = helperMut::identify_mut_aestetics(c("ATCAA~T",
-                                           "CCCAC~T",
-                                           "CTTTC~A"))
-
-  expect_equal(val$k , 2)
-  expect_equal(val$K , 5)
-  expect_equal(val$sep , "~")
-
-  val = helperMut::identify_mut_aestetics(c("C~T",
-                                            "C~T",
-                                            "T~A"))
-
-  expect_equal(val$k , 0)
-  expect_equal(val$K , 1)
-  expect_equal(val$sep , "~")
+  test1 = download_signature_set(version = "v3")
+  expect_equal(ncol(test1),67)
+  expect_equal(nrow(test1),96)
+  test2 = download_signature_set() # defaults to v2
+  expect_equal(ncol(test2),30)
+  expect_equal(nrow(test2),96)
 
 })
 
 
-
+# DATA --------------------------------------------------------------------
 
 context("data")
 test_that("data is loaded correctly", {
@@ -316,17 +334,7 @@ test_that("data is loaded correctly", {
   expect_equal(length(tr_colors),6)
 })
 
-
-context("genome")
-test_that("genome selector", {
-
-  test = genome_selector()
-  expect_equal(length(seqnames(test)), 93)
-
-})
-
-
-
+# UTILS -------------------------------------------------------------------
 
 context("utils")
 test_that("binom test", {
@@ -344,4 +352,34 @@ test_that("binom test", {
 })
 
 
+context("utils")
+test_that("random", {
+  expect_equal(jaccard(c("a","a","c"),c("a")),.5)
+
+
+  res = .lenunique(c("A","C","A"))
+  expect_equal(res,2)
+})
+
+
+
+# INDELS ------------------------------------------------------------------
+
+context("indels")
+test_that("microhomology", {
+  seqvec = c("CTACTCGTTCGA","TTTCCTACTATTTCCGGGTAGGGGGGGGTA")
+
+  res = detect_microhomology(seqvec)
+  expect_equal(res[1,1],0)
+  expect_equal(res[1,2],3)
+  expect_equal(res[2,1],2)
+  expect_equal(res[2,2],0)
+
+  seqvec_err = c("CTACTGTTCGA","TTTCCTACTATTTCCGGTAGGGGGGGGTA")
+  expect_error(detect_microhomology(seqvec_err))
+})
+
+
+
+# UNCLASSIFIED ------------------------------------------------------------
 

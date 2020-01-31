@@ -13,7 +13,7 @@ binom_test(x, n, p = NULL, ...)
 
 \item{p}{success probability}
 
-\item{...}{}
+\item{...}{further params for binom.test}
 }
 \value{
 a dataframe with statistics from the binom.test.
