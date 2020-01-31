@@ -264,4 +264,5 @@ context("data")
 test_that("data is loaded correctly", {
   expect_equal(length(order_ms96_supekCell2017),96)
   expect_equal(length(order_ms96_cosmicSignatures),96)
+  expect_equal(length(tr_colors),6)
 })

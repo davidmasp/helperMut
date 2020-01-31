@@ -8,9 +8,6 @@
 # \_______/ \__|  \__|  \__|   \__|  \__|
 
 
-
-
-
 #' Ordered mutation types based on Supek,Lehner Cell 2017
 #'
 #' A vector containing the ordered mutation types at k=1
@@ -29,4 +26,16 @@
 #' @format A vector with 96 mutation types
 #' @source \url{https://cancer.sanger.ac.uk/signatures_v2/Signature-2.png}
 "order_ms96_cosmicSignatures"
+
+
+#' Colors used to plot mutational signatures
+#'
+#' A vector containing the HEX codes for each mutation types at k=0.
+#'
+#' It can directly be used in scale_manual from ggplot2
+#'
+#' @format A names vector with 6 hex codes.
+#' @source \url{https://cancer.sanger.ac.uk/signatures_v2/Signature-2.png}
+"tr_colors"
+
 
