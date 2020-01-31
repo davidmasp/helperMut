@@ -69,7 +69,7 @@ de_novo_sig = matrix(de_novo_sig, ncol = 3)
 rownames(de_novo_sig) = generate_mut_types(k = 1)
 colnames(de_novo_sig) = LETTERS[1:3]
 
-cosmic_sigs = download_signature_set(type = "cosmic")
+cosmic_sigs = download_signature_set(version =  "v2")
 
 res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
 heatmap(res)

@@ -31,12 +31,12 @@ remotes::install_github("davidmasp/helpermut@develop")
 ``` r
 
 covr::package_coverage()
-#> helperMut Coverage: 52.39%
-#> R/profiles.R: 12.82%
-#> R/genome.R: 16.47%
+#> helperMut Coverage: 60.51%
 #> R/indels.R: 22.22%
 #> R/utils.R: 27.78%
 #> R/regions.R: 41.51%
+#> R/genome.R: 52.94%
+#> R/profiles.R: 71.93%
 #> R/muts.R: 81.63%
 ```
 
@@ -60,7 +60,7 @@ de_novo_sig = matrix(de_novo_sig, ncol = 3)
 rownames(de_novo_sig) = generate_mut_types(k = 1)
 colnames(de_novo_sig) = LETTERS[1:3]
 
-cosmic_sigs = download_signature_set(type = "cosmic")
+cosmic_sigs = download_signature_set(version =  "v2")
 
 res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
 heatmap(res)

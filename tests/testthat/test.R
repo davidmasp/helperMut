@@ -37,6 +37,17 @@ test_that("genome selector", {
 
 })
 
+context("genome")
+test_that("chunk regions", {
+
+
+  expect_error(get_region_chunks(gr = "wrong"))
+  test = genome_selector()
+  res = get_region_chunks(test)
+
+  expect_true(all(width(res) <= 10000))
+  expect_equal(sum(width(trim(res))), sum(seqlengths(test)))
+})
 
 
 
