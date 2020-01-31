@@ -18,8 +18,9 @@ test_that("Simplify", {
 
 context("Mutation context helpers")
 test_that("muts context helpers", {
-  # moved
-  expect_true(all(generate_mut_types(1) == pos_ms96))
+  # this is to prove that the mutation types are indeed alphabetical
+  all_mut_types = generate_mut_types(1,simplify_set = c("C","T"))
+  expect_true(all(all_mut_types == order_ms96_cosmicSignatures))
 
   # general simplifly
   muts = c("AGT>T","ACT>T")
@@ -256,4 +257,11 @@ test_that("str functions", {
   output = "ACCGT>A"
 
   expect_equal(ms_reverse_complement(input),output)
+})
+
+
+context("data")
+test_that("data is loaded correctly", {
+  expect_equal(length(order_ms96_supekCell2017),96)
+  expect_equal(length(order_ms96_cosmicSignatures),96)
 })
