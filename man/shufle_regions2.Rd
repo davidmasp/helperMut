@@ -12,7 +12,7 @@ shufle_regions2(regions, mask)
 \item{mask}{mask regions where to shufle (Granges)}
 }
 \value{
-The function returns a GR object with the regions located in new random 
+The function returns a GR object with the regions located in new random
 positions. The index of the output should match index of the input.
 
 Chromosome / seqnames are not maintained.

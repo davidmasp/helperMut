@@ -12,9 +12,16 @@ sudo: false
 cache: packages
 warnings_are_errors: false
 
+# uncomment if build fails due to missing pkgs.
+# this are used in test but not in the pkg
+# bioc_packages:
+#   - org.Hs.eg.db
+#   - TxDb.Hsapiens.UCSC.hg19.knownGene
+#   - SomaticSignatures
+
 r_github_packages:
-- jimhester/lintr
-- r-lib/covr
+  - jimhester/lintr
+  - r-lib/covr
 
 after_script:
     - R CMD INSTALL $PKG_TARBALL

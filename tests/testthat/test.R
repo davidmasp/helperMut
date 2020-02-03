@@ -257,3 +257,25 @@ test_that("str functions", {
 
   expect_equal(ms_reverse_complement(input),output)
 })
+
+
+
+
+
+
+
+
+context("regions")
+test_that("gene functions", {
+
+  human = org.Hs.eg.db::org.Hs.eg.db
+  txdb = TxDb.Hsapiens.UCSC.hg19.knownGene::TxDb.Hsapiens.UCSC.hg19.knownGene
+  obtain_genomic_feature(feat = "transcripts",
+                         annotation_pkg = human,
+                         transcript_db = txdb,
+                         identifiers = c("BRCA1","BRCA2"),
+                         indentifier_type = "SYMBOL",
+                         transcript_db_columns = "TXNAME") -> res
+  # manually retrieved from genome browser
+  expect_equal(length(unique(res$TXNAME)),24)
+})

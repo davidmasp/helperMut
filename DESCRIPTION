@@ -15,7 +15,10 @@ Suggests:
     BSgenome.Hsapiens.UCSC.hg38,
     BSgenome.Mmusculus.UCSC.mm9,
     BSgenome.Mmusculus.UCSC.mm10,
-    covr
+    covr,
+    org.Hs.eg.db,
+    TxDb.Hsapiens.UCSC.hg19.knownGene,
+    SomaticSignatures
 Imports: 
     BiocGenerics,
     BSgenome,
@@ -42,5 +45,6 @@ Imports:
     tibble,
     testthat,
     readr,
-    SomaticSignatures
+    GenomicFeatures,
+    AnnotationDbi
 RoxygenNote: 7.0.0
