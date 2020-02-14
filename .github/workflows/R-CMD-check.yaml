@@ -8,6 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: r-lib/actions/setup-r@master
+        with:
+          r-version: '3.6.0' # The R version to download
       - name: Install dependencies
         run: |
           install.packages(c("remotes", "rcmdcheck"))
