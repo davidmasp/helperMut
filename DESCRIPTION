@@ -10,6 +10,7 @@ Description: An ensembl of functionalities and helper
 License: MIT + file LICENSE
 URL: https://github.com/davidmasp/helperMut
 BugReports: https://github.com/davidmasp/helperMut/issues
+biocViews:
 Encoding: UTF-8
 LazyData: true
 Suggests:
