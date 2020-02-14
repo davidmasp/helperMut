@@ -121,6 +121,15 @@ compute_motif_enrichment <- function(vr,
                                      k_offset = 20,
                                      set= "TCW>K",
                                      control_set = "NCN>D") {
+
+  if (!is(object = genome,"BSgenome")){
+    stop(message = "Genome is not a BSgenome object")
+  }
+
+  if (!is(object = vr,"VRanges")){
+    stop(message = "VR is not a VRanges object")
+  }
+
   set_test = make_set(set)
   set_control = make_set(control_set)
   set_control_excluded = set_control[!set_control %in% set_test]

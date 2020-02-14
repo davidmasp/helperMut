@@ -279,3 +279,38 @@ test_that("gene functions", {
   # manually retrieved from genome browser
   expect_equal(length(unique(res$TXNAME)),24)
 })
+
+
+
+
+
+
+
+
+
+context("utils")
+test_that("enrichment",{
+  library(VariantAnnotation)
+  VRanges(seqnames = "chr2",
+          ranges = IRanges(start =c(204032938,
+                                    204033081,
+                                    204033154,
+                                    204033163),
+                           width = 1),
+          ref = "G",
+          alt = "T")
+  genome = genome_selector(script_mode = T)
+
+  expect_error(compute_motif_enrichment(vr = "test",genome = genome))
+  expect_error(compute_motif_enrichment(vr = vr,genome = "jfdhsf"))
+
+  res = expect_warning( compute_motif_enrichment(vr = vr,
+                                           genome = genome,
+                                           k_offset = 5,
+                                           set = "GGG>T",
+                                           control_set = "NGG>T"))
+
+  expect_true( is(res,"data.frame"))
+  expect_true("estimate" %in% colnames(res))
+
+          })
