@@ -298,7 +298,7 @@ test_that("enrichment",{
                                     204033163),
                            width = 1),
           ref = "G",
-          alt = "T")
+          alt = "T") -> vr
   genome = genome_selector(script_mode = T)
 
   expect_error(compute_motif_enrichment(vr = "test",genome = genome))
