@@ -8,6 +8,8 @@ Description: An ensembl of functionalities and helper
     functions to work with mutational and genomic data in R. It builds up
     on pre-existing tools from bioc to set up a framework for analysis.
 License: MIT + file LICENSE
+URL: https://github.com/davidmasp/helperMut
+BugReports: https://github.com/davidmasp/helperMut/issues
 Encoding: UTF-8
 LazyData: true
 Suggests:
