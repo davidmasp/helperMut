@@ -39,6 +39,13 @@
 "tr_colors"
 
 
+#' A small VR object to use in examples.
+#'
+#' A small VRanges object to use in the examples of the documentation
+#'
+#' @format VRanges object
+"vr_example"
+
 
 #' IUPAC DNA codes
 #'
