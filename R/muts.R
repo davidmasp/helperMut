@@ -485,6 +485,7 @@ make_set <- function(x,
 #'
 #' @examples
 #'
+#' library(VariantAnnotation)
 #' genome = genome_selector("Hsapiens.UCSC.hg19")
 #' base_pos = 6e4
 #' vr_target = VRanges(seqnames="chr1",

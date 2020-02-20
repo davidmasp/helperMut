@@ -2,9 +2,12 @@
 % Please edit documentation in R/utils.R
 \name{get_k_freq}
 \alias{get_k_freq}
-\title{Get k-mer frequency in neighbouring regions}
+\alias{get_k_freq_fromRegion}
+\title{Get k-mer frequency in mutation-neighbouring regions}
 \usage{
 get_k_freq(vr, k, wl, genome = genome_selector(), ...)
+
+get_k_freq_fromRegion(k, gr, genome = genome_selector(), ...)
 }
 \arguments{
 \item{vr}{a VRanges object with SNVs}
@@ -16,11 +19,24 @@ get_k_freq(vr, k, wl, genome = genome_selector(), ...)
 \item{genome}{a BSgenome object}
 
 \item{...}{arguments for oligonucleotideFrequency}
+
+\item{gr}{a GRanges object delimiting the region of interest}
 }
 \value{
-
+A integer named vector with the oligonucleotides selected at a given k.
 }
 \description{
 From mutations in a VRanges object, obtain the k-mer oligonucleotide
 frequencies at a given window length.
+}
+\section{Functions}{
+\itemize{
+\item \code{get_k_freq_fromRegion}: Get k-mer frequency in regions
+}}
+
+\examples{
+get_k_freq(vr_example,
+          k = 1,
+          wl = 1000,
+          genome = genome_selector("Hsapiens.1000genomes.hs37d5"))
 }

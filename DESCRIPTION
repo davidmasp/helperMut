@@ -13,8 +13,7 @@ LazyData: true
 Suggests:
     BSgenome.Hsapiens.UCSC.hg19,
     BSgenome.Hsapiens.UCSC.hg38,
-    BSgenome.Mmusculus.UCSC.mm9,
-    BSgenome.Mmusculus.UCSC.mm10,
+    BSgenome.Hsapiens.1000genomes.hs37d5,
     covr
 Imports: 
     BiocGenerics,

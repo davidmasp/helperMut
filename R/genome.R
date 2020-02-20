@@ -198,7 +198,10 @@ get_region_chunks <- function(gr,wl = 10000,unlist = TRUE) {
 
   if (unlist){
     names(res) = NULL
-    res = do.call(what = "c",args = res)
+    # the warning s due to multiple things don't share seqnmas
+    # could be solved by explicitely seting seqnames
+    # I think it wouldn't be worth the effort.
+    res = suppressWarnings(do.call(what = "c",args = res))
   }
 
   return(res)

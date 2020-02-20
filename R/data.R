@@ -46,6 +46,12 @@
 #' @format VRanges object
 "vr_example"
 
+#' A small GR object to use in examples.
+#'
+#' A small GRanges object to use in the examples of the documentation
+#'
+#' @format GRanges object
+"gr_example"
 
 #' IUPAC DNA codes
 #'

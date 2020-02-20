@@ -54,6 +54,31 @@ test_that("chunk regions", {
 # MUTS --------------------------------------------------------------------
 
 
+context("enrichment")
+test_that("general enrichment", {
+  library(VariantAnnotation)
+  genome = genome_selector()
+  base_pos = 6e4
+  vr_target = VRanges(seqnames="chr1",
+                      ranges=IRanges(c(base_pos + 6, base_pos + 16),
+                                     width = 1),
+                      ref = "C",alt = "A")
+  gr_target <- GRanges(seqnames="chr1",
+                       ranges=IRanges(base_pos + 3,base_pos +  10))
+  gr_mask <- GRanges(seqnames=c("chr1", "chr1"),
+                     ranges=IRanges(c(base_pos + 4,base_pos + 15),
+                                    width = 10))
+
+  res = mutation_enrichment_general(vr = vr_target,
+                              gr = gr_target,
+                              genome = genome,
+                              genome_mask = gr_mask)
+
+  expect_s3_class(object = res,class = "data.frame")
+  expect_equal(round(as.numeric(res$estimate),1), 1.80)
+})
+
+
 context("muts")
 test_that("str functions", {
   input = "ACGGT"
@@ -202,9 +227,8 @@ test_that("MSM",{
   expect_error(count_MS(c("TCA>T","TCT>T","TCN>T")))
 
   genome = BSgenome.Hsapiens.UCSC.hg19::BSgenome.Hsapiens.UCSC.hg19
-  m1 = expect_warning(compute_MSM(vr,genome = genome))
+
   m2 = expect_warning(compute_MSM_fast(vr,genome = genome))
-  expect_equal(m1,m2)
 
   m3 = SomaticSignatures::mutationContext(vr = vr,
                                           ref = genome)

@@ -108,15 +108,15 @@ get_k_freq <- function(vr,k,wl,genome = genome_selector(),...){
 
   # we reduce to avoid overlaps
   extended_region = GenomicRanges::reduce(extended_region)
-  seqlevels(extended_region) = seqlevels(genome)
-  gL = seqlengths(genome)
-  seqlengths(extended_region) <- gL
-  extended_region = trim(extended_region)
+  GenomeInfoDb::seqlevels(extended_region) = GenomeInfoDb::seqlevels(genome)
+  gL = GenomeInfoDb::seqlengths(genome)
+  GenomeInfoDb::seqlengths(extended_region) <- gL
+  extended_region = GenomicRanges::trim(extended_region)
 
   # we now compute the frequency
   seqN = BSgenome::getSeq(genome, extended_region)
   K = (k*2)+1
-  tri_freqs = oligonucleotideFrequency(seqN, width=K,...)
+  tri_freqs = Biostrings::oligonucleotideFrequency(seqN, width=K,...)
   tri_counts = apply(tri_freqs,2, sum)
   return(tri_counts)
 }
@@ -127,21 +127,40 @@ get_k_freq_fromRegion <- function(k,gr,genome = genome_selector(),...){
   # this is not really needed but just in case
   extended_region = extend(x = gr,upstream = k, downstream = k)
   extended_region = GenomicRanges::reduce(extended_region)
-  seqlevels(extended_region) = seqlevels(genome)
-  gL = seqlengths(genome)
-  seqlengths(extended_region) <- gL
-  extended_region = trim(extended_region)
+  GenomeInfoDb::seqlevels(extended_region) = GenomeInfoDb::seqlevels(genome)
+  gL = GenomeInfoDb::seqlengths(genome)
+  GenomeInfoDb::seqlengths(extended_region) <- gL
+  extended_region = GenomicRanges::trim(extended_region)
 
   # we now compute the frequency
   seqN = BSgenome::getSeq(genome, extended_region)
   K = (k*2)+1
-  tri_freqs = oligonucleotideFrequency(seqN, width=K,...)
+  tri_freqs = Biostrings::oligonucleotideFrequency(seqN, width=K,...)
   tri_counts = apply(tri_freqs,2, sum)
   return(tri_counts)
 }
 
 
-compute_rapo <- function(vr,genome = genome_selector(),wl = 1000000){
+#' Compute apobec enrichment locally for a set of mutations
+#'
+#' Implemented from the methods in Seplyarskiy 2016 Genome Research.
+#'
+#' It computes the number of APOBEC mutations defined a TCW>K and it compares
+#' these numbers to nonAPOBEC mutations in the VCW>K context surrounding the
+#' given set of mutations. The mutations are extended with a wl described in
+#' the arguments. The ratios are corrected by context occurence.
+#'
+#' @param vr a VRanges object with a set of mutations
+#' @param genome a BSgenome object
+#' @param wl the window lenght to explore
+#'
+#' @return
+#' A single integer indicating the ratio of rates. Higher values indicate
+#' more apobec3a/b enrichment.
+#' @export
+#'
+#' @examples
+compute_rAPOBEC <- function(vr,genome = genome_selector(),wl = 1000000){
   # defined as in Seplyarskiy_2016_GR and Roberts 2013 Nature Genetics
   # but locally (1mb bins)
 
