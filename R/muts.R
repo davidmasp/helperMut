@@ -53,6 +53,36 @@ extend <- function(x, upstream, downstream) {
 }
 
 
+#' get mutation subtypes from VR
+#'
+#' @param x a VRanges object
+#' @param sep a separator string to divide context and alternative allele
+#' @param k number of nucleotides to expand the context in one direction
+#' @param genome a BSgenome object
+#' @param simplify_set a set of DNA bases which to simplify the mutation strings
+#' @param keep_strand true if no simplification is needed
+#'
+#' @return
+#'
+#' A string vector with mutation strings corresponding to each position in the
+#' VRanges object. Should have the same length as the original inputed
+#' object.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' library(VariantAnnotation)
+#' library(helperMut)
+#' genome = genome_selector("Hsapiens.1000genomes.hs37d5")
+#' vr = VRanges(seqnames = c(1,2,3),
+#'             ranges = IRanges(start = c(1e6,1e6,1e6),width = 1),
+#'             ref = "N", alt = c("A","T","A"))
+#' get_MS_VR(vr,genome = genome)
+#' get_MS_VR(vr,genome = genome,sep = "_")
+#' get_MS_VR(vr,genome = genome,sep = "_",keep_strand = TRUE)
+#' get_MS_VR(vr,genome = genome,simplify_set = c("C","T"))
+#'
 get_MS_VR <- function(x,
                       sep=">",
                       k = 1,
@@ -73,7 +103,8 @@ get_MS_VR <- function(x,
   }
 
 
-  if (!any(GenomeInfoDb::seqlevelsStyle(x) %in% GenomeInfoDb::seqlevelsStyle(genome))){
+  if (!any(GenomeInfoDb::seqlevelsStyle(x) %in%
+           GenomeInfoDb::seqlevelsStyle(genome))){
     stop("Seq levels do not match in regions and genome, check the reference")
   }
 
@@ -98,7 +129,7 @@ get_MS_VR <- function(x,
   muts = paste(seq,alt_seq,sep = sep)
 
   if (!keep_strand){
-    muts = simplify_muts(muts,simplify_set = simplify_set)
+    muts = simplify_muts(muts,simplify_set = simplify_set,sep = sep)
   }
 
   return(muts)
@@ -146,6 +177,21 @@ str_reverse_complement <- function(str){
 }
 
 
+#' Count mutaiton subtypes
+#'
+#' Given a mutation subtype string vector, automatically indentify the
+#' parameters and generate a interger vector with counts.
+#'
+#' @param ms A mutation subtype string vector
+#'
+#' @return
+#' a integer vector with frequency counts
+#' @export
+#'
+#' @examples
+#'
+#' count_MS(c("TCA>T","CAC>T"))
+#' count_MS(c("TCA_T","CAC_T"))
 count_MS <- function(ms) {
 
   mutaes = identify_mut_aestetics(ms)
@@ -156,10 +202,13 @@ count_MS <- function(ms) {
 
   if (length(simplify_set) > 2) {
     stop("Mutation type input is not simplified, stopping")
-  } else if (length(simplify_set) == 2 && simplify_set[1] == str_reverse_complement(simplify_set[2])){
+  } else if (length(simplify_set) == 2 &&
+             simplify_set[1] == str_reverse_complement(simplify_set[2])){
     stop("Mutation type input is not simplified, stopping")
   } else if (length(simplify_set) == 1){
-    warning("A unique central position is presented, returning just those subtypes")
+    mssg =
+      "A unique central position is presented, returning just those subtypes"
+    warning(mssg)
   }
 
   mut_types = generate_mut_types(k=k,
@@ -170,55 +219,17 @@ count_MS <- function(ms) {
     stop("Some mutations are not standard. Mutations should be simplified")
   }
 
-  row_counts = integer((4**(k*2)) * length(simplify_set)*3)
-  names(row_counts) = mut_types
+  ms_fct = factor(ms,levels = mut_types)
 
-  idx = match(ms,table = mut_types)
-  freqs = plyr::count(idx)
+  row_counts = (table(ms_fct))
+  row_vec = as.vector(row_counts)
+  names(row_vec) = names(row_counts)
 
-  row_counts[freqs$x] <- freqs$freq
 
   # this should be fine if this has passed the previous test
   stopifnot(sum(row_counts) == length(ms))
 
   return(row_counts)
-}
-
-
-compute_MSR <- function(vr,
-                        k=1,
-                        sep=">",
-                        tp = NULL,
-                        genome =  genome_selector()){
-
-  # check class
-  class_check =  is(object =vr,class2 ="VRanges")
-  if (!class_check){
-    stop("VRanges object needed.")
-  }
-
-  # check unisample
-  stopifnot(length(unique(VariantAnnotation::sampleNames(vr)))==1)
-
-  # get contexts
-  ms = get_MS_VR(vr,k=k,simplify_set = c("A","C"), genome =  genome)
-  row = count_MS(ms)
-
-  # correct by total positives if needed
-  if(!is.null(tp)){
-    if (tp > length(vr)){
-      row = correct_MSR_TP(x = row,tp=tp) # open issue
-    }
-  }
-
-  return(row)
-}
-
-
-correct_MSR_TP <- function(x,tp){
-  freq = x/sum(x)
-  vals = freq*tp
-  return(vals)
 }
 
 
@@ -452,85 +463,96 @@ make_set <- function(x,
 
 
 
-get_GR_from_gene_set <- function(GS,txdb){
-  g = genes(txdb,
-            filter = list("gene_id" = unlist(geneIds(gs) )))
+#' Compute test for mutation enrichment in a region
+#'
+#' This functions computes a fisher test to check for an enrichment
+#' or depletion based on the size of the region tested and the genome
+#' or genomic mask.
+#'
+#' It does not control for sequence composition, just for size.
+#'
+#' Warning: target regions will be intercepted with mask if not NULL
+#'
+#' @param vr a VRanges object with mutations
+#' @param gr a target region to test for enrichment, a GRanges object
+#' @param genome a BSgenome object
+#' @param genome_mask a regions mask that contains the target regions to test.
+#' @param ... arguments for the fisher test
+#'
+#' @return
+#' a tidy dataframe from broom::tidy.
+#' @export
+#'
+#' @examples
+#'
+#' genome = genome_selector("Hsapiens.UCSC.hg19")
+#' base_pos = 6e4
+#' vr_target = VRanges(seqnames="chr1",
+#'                     ranges=IRanges(c(base_pos + 6, base_pos + 16),
+#'                                    width = 1),
+#'                     ref = "C",alt = "A")
+#' gr_target <- GRanges(seqnames="chr1",
+#'                      ranges=IRanges(base_pos + 3,base_pos +  10))
+#' gr_mask <- GRanges(seqnames=c("chr1", "chr1"),
+#'                    ranges=IRanges(c(base_pos + 4,base_pos + 15),
+#'                                   width = 10))
+#'
+#' mutation_enrichment_general(vr = vr_target,
+#'                             gr = gr_target,
+#'                             genome = genome,
+#'                             genome_mask = gr_mask)
+mutation_enrichment_general <- function(vr,
+                                         gr,
+                                         genome = genome_selector(),
+                                         genome_mask = NULL,
+                                        ...) {
 
-  return(g)
-}
-
-
-get_gene_regions_occurences <- function(GR,k,ref_seq = NULL){
-
-  if (is.null(ref_seq)){
-    assembly = unique(seqinfo(GR)@genome)
-    if (is.na(assembly)){
-      stop("A genome object is needed.")
-    } else {
-      stop("A genome object is needed.")
-    }
+  if (is.null(genome_mask)){
+    gr_target = gr
+  } else {
+    # [^mdfkjs]
+    gr_target = GenomicRanges::intersect(gr,genome_mask)
   }
 
-  s = Biostrings::getSeq(genome,GR)
+  ovr = GenomicRanges::findOverlaps(query = vr,subject = gr_target)
+  ctx_cont = get_k_freq_fromRegion(gr = gr_target, k = 0, genome = genome)
 
-  kmercounts = Biostrings::oligonucleotideFrequency(s,k)
+  if (is.null(genome_mask)){
+    GenomeInfoDb::seqlevels(gr) = GenomeInfoDb::seqlevels(genome)
+    GenomeInfoDb::seqlengths(gr) = GenomeInfoDb::seqlengths(genome)
+    GenomeInfoDb::genome(gr) = GenomeInfoDb::genome(genome)
+    gr_gaps = gaps(gr)
+    gr_gaps = gr_gaps[strand(gr_gaps) == "*"]
+  } else {
+    # in this scenario gr_target should be always included in genome_mask
+    # see [^mdfkjs]
+    gr_gaps = GenomicRanges::setdiff(x = genome_mask,y = gr_target)
+  }
 
-  kmer_counts_vec = apply(kmercounts, 2,sum)
+  ctx_cont_gaps = get_k_freq_fromRegion(gr = gr_gaps,
+                                        k = 0,
+                                        genome = genome)
 
-  nm = Biostrings::DNAStringSet(names(kmer_counts_vec))
-  revComp = substr(nm,3,3) %in% c("T","G")
-  nm[revComp] = Biostrings::reverseComplement( nm[revComp])
-  nm_df = data.frame(ctx = nm,counts = kmer_counts_vec)
-  occ = nm_df %>%
-    dplyr::group_by(ctx) %>%
-    dplyr::summarise(occurrences = sum(counts))
+  ovr_out = GenomicRanges::findOverlaps(query = vr,subject = gr_gaps)
 
-  return(occ)
+  muts_in = length(ovr)
+  muts_out = length(ovr_out)
+  ctx_in = sum(ctx_cont)
+  ctx_out = sum(ctx_cont_gaps)
+
+  cnt_table = matrix(c(muts_in,
+                       ctx_in,
+                       muts_out,
+                       ctx_out),
+                     byrow = TRUE,
+                     nrow = 2,
+                     dimnames = list(Mutation = c("Mut","wt"),
+                                     Region = c("in","out")))
+
+  res_df = broom::tidy(fisher.test(cnt_table,...))
+
+  res_df
 }
-
-test_general_enrichment <- function(GR,VR,k) {
-  genome = BSgenome.Hsapiens.UCSC.hg19::BSgenome.Hsapiens.UCSC.hg19
-  tmp <- extend(VR,upstream = k,downstream = k)
-  seq <-  Biostrings::getSeq(genome,tmp)
-
-  revComp = substr(seq, 3, 3) %in% c("T", "G")
-  seq[revComp] = Biostrings::reverseComplement(seq[revComp])
-  seq_df = data.frame(ctx = seq)
-  occ = seq_df %>%
-    dplyr::group_by(ctx) %>%
-    dplyr::summarise(occurrences_obs = n())
-
-  occ_exp = get_gene_regions_occurences(GR,(k*2)+1)
-  occ_dat = dplyr::inner_join(occ,occ_exp,by="ctx") # change this for fill = 0
-  fisher_df$ctx = occ_dat$ctx
-  fisher_df$q.value = p.adjust(fisher_df$p.value,"fdr")
-  fisher_df$b.value = p.adjust(fisher_df$p.value,"bonferroni")
-
-  return(fisher_df)
-}
-
-
-fisher_muts <- function(obs,total){
-  #browser()
-  df = data.frame(obs = obs,
-                  total = total)
-
-  df %<>% dplyr::mutate(
-    nomut = total - obs,
-    rest_mut = sum(obs) - obs,
-    rest_nomut = sum(nomut) - nomut
-  ) %>% dplyr::select(-total)
-
-  res_df = purrr::map_df(seq_len(nrow(df)),function(i){
-    # critical step. depends inside the function tho
-    tmp_mat = matrix(as.numeric(df[i,]),ncol =2)
-    res_df = fisher.test(tmp_mat) %>% broom::tidy()
-
-  })
-
-  return(res_df)
-}
-
 
 #' Compute mutational subtype matrix
 #'
@@ -557,7 +579,7 @@ compute_MSM_fast = function(vr,
                             genome = genome_selector(),
                             simplify_set = c("C","A")) {
 
-  # credit to somaticSignatures
+  # based on the implementation of somaticSignatures::motifMatrix
 
   # needs total positive implementation
   stopifnot(requireNamespace("VariantAnnotation",quietly = T))
@@ -598,63 +620,6 @@ correct_MSM_P <- function(msm,P){
 
   return(res)
 
-}
-
-# this is a end function (should deprecate!!)
-# dependent in clustMUT
-compute_MSM <- function(vr,
-                        k=1,
-                        sep = ">",
-                        tp = TRUE,
-                        genome = genome_selector(),
-                        simplify_set = c("C","A"),
-                        ...) {
-
-  ## internal funs
-  ## extracted from https://stackoverflow.com/questions/18813526
-  identicalValue <- function(x,y) if (identical(x,y)) x else FALSE
-
-  stopifnot(requireNamespace("VariantAnnotation",quietly = T))
-  gr_list = GenomicRanges::split(vr,VariantAnnotation::sampleNames(vr))
-
-  # solving issue when a sampl does not have any clusters
-  # could be a better way to handle this
-  mask = lapply(gr_list, function(x){length(x)>0})
-  gr_list = gr_list[unlist(mask)]
-
-  mt = generate_mut_types(k = k,sep = sep,simplify_set = simplify_set)
-  #browser()
-
-  if (tp){
-    samples = lapply(gr_list, function(x){
-      compute_MSR(x,
-                  k=k,
-                  sep=sep,
-                  tp = unique(x$tp),
-                  genome=genome)
-    })
-    res_matrix = matrix(integer(length(mt)*length(samples)),ncol = length(mt))
-  } else {
-    samples = lapply(gr_list, function(x){
-      compute_MSR(x,
-                  k=k,
-                  sep=sep,
-                  genome=genome)
-    })
-    res_matrix = matrix(integer(length(mt)*length(samples)),ncol = length(mt))
-  }
-
-  rownames(res_matrix) <- names(samples)
-
-  # see function in pca_sigs.R
-  colnames_list = samples %>% purrr::map(colnames)
-  colnames_chr = Reduce(identicalValue,colnames_list)
-  colnames(res_matrix) <- mt
-  for (i in names(samples)){
-    tmp = samples[[i]]
-    res_matrix[i,names(tmp)] = tmp
-  }
-  return(res_matrix)
 }
 
 
