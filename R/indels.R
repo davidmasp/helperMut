@@ -45,6 +45,21 @@ del_microhomology_VR <- function(vr,genome = genome_selector()){
 }
 
 
+#' Detect microhomology
+#'
+#' From a given sequence vector detect microhomologies and return
+#' the lenght of the positive and negative micro-homologies.
+#'
+#' @param seq_vector
+#'
+#' @return
+#' A data frame, row per element in the input vector with the detected
+#' micro-homology.
+#' @export
+#'
+#' @examples
+#' seqvec = c("CTACTCGTTCGA","TTTCCTACTATTTCCGGGTAGGGGGGGGTA")
+#' res = detect_microhomology(seqvec)
 detect_microhomology <- function(seq_vector){
   # check that all regions have same width
   stopifnot(all(nchar(seq_vector)%%3 == 0))
@@ -78,6 +93,25 @@ detect_microhomology <- function(seq_vector){
   return(res)
 }
 
+#' Compute micro-homology length
+#'
+#' Given 2 seuence vectors it computes the lenght of the micro-homology
+#' if existent.
+#'
+#' Should be maybe also able to get a DNAstringSet
+#'
+#' @param vec1 a string sequence vector
+#' @param vec2 a string sequence vector
+#' @param direction in which direction to check for homologies (either + ot -)
+#'
+#' @return
+#' A integer value with the length of the microhomologies
+#' @export
+#'
+#' @examples
+#' seq1 = c("A","A","T")
+#' seq2 = c("A","A","C")
+#' compute_mh_length(vec1 = seq1,vec2 = seq2,direction = "-")
 compute_mh_length <- function(vec1,vec2,direction ="+"){
 
   # it checks the similiraty of the vectors per element and then
@@ -99,16 +133,6 @@ compute_mh_length <- function(vec1,vec2,direction ="+"){
 }
 
 
-#
-# # tests
-# seqvec = c("CTACTCGTTCGA",
-#            "TTTCCTACTATTTCCGGGTAGGGGGGGGTA")
-# detect_microhomology(seqvec)
-
-# 0 3
-# 2 0
-
-
 
 
 ### LOCAL RUN TEST!
@@ -120,9 +144,34 @@ compute_mh_length <- function(vec1,vec2,direction ="+"){
 # genome = helperMut::genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
 # indels_classifier(vr = dat_indels,genome = genome)
 
-## this is assuming that the first letter in REF is shared with ALT and
-## corresponds to the refseq
-# indels NEED TO BE left-aligned
+
+
+
+#' Indel Classifier
+#'
+#' UNDER DEVELOPMENT!
+#'
+#' Given a set of left-aligned indels the function classifies the mutations
+#' according to he indels rules defined by PCAWG (?) to generate indel features.
+#'
+#' See here for more details.
+#'
+#' Input format needs to be first letter in REF and ALT is shared. Then this
+#' letter corresponds to the reference sequence in genome. This should be the
+#' format obtained from
+#' \url{bcftools norm}{http://samtools.github.io/bcftools/bcftools.html#norm}
+#'
+#' @param vr A VRanges object with left-aligned indels
+#' @param maxRep The number of max repretitions for the indels
+#' @param genome A BSgenome object
+#' @param check_format Should we check the indel input format?
+#' @param groupVar Used to determine rows in the final matrix
+#'
+#' @return
+#' A dataframe with rows as grouped elements and columns as features
+#' @export
+#'
+#' @examples
 indels_classifier <- function(vr,
                              maxRep = 5,
                              genome = genome_selector(),
