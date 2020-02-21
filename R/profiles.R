@@ -35,12 +35,15 @@ download_signature_set <- function(version = c("v2","v3"),
                                    synapse_email = Sys.getenv("SYNAPSE_EMAIL"),
                                    synapse_apiKey = Sys.getenv("SYNAPSE_PAT")){
 
-  if (version == "v3" & is.null(synapse_apiKey)){
-    stop("The v3 is stored in Synapse and a apiKey is required")
-  }
-
   if (length(version)>1){
     version = version[1] # defaults to "cosmic"
+  }
+
+  if (version == "v3" & is.null(synapse_apiKey)){
+    stop("The v3 is stored in Synapse and a apiKey is required")
+    if (!requireNamespace("synapser")) {
+      stop("You need to install synapser to use this function.")
+    }
   }
 
   # URL / CODES
