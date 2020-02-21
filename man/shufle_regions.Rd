@@ -22,6 +22,3 @@ Resulting regions may overlap
 \description{
 Similar to \href{https://bedtools.readthedocs.io/en/latest/content/tools/shuffle.html}{shufleBed} from bedtools.
 }
-\examples{
-
-}

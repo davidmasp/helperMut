@@ -13,12 +13,10 @@ LazyData: true
 Suggests:
     BSgenome.Hsapiens.UCSC.hg19,
     BSgenome.Hsapiens.UCSC.hg38,
-    BSgenome.Mmusculus.UCSC.mm9,
-    BSgenome.Mmusculus.UCSC.mm10,
-    covr,
+    BSgenome.Hsapiens.1000genomes.hs37d5,
     org.Hs.eg.db,
     TxDb.Hsapiens.UCSC.hg19.knownGene,
-    SomaticSignatures
+    covr
 Imports: 
     BiocGenerics,
     BSgenome,
@@ -37,14 +35,10 @@ Imports:
     tidyr,
     tidyselect,
     VariantAnnotation (>= 1.27.2),
-    cowplot,
-    forcats,
-    ggplot2,
-    S4Vectors,
-    scales,
-    tibble,
     testthat,
     readr,
     GenomicFeatures,
-    AnnotationDbi
+    AnnotationDbi,
+    SomaticSignatures,
+    synapser
 RoxygenNote: 7.0.0

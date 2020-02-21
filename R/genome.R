@@ -1,3 +1,11 @@
+#  $$$$$$\  $$$$$$$$\ $$\   $$\  $$$$$$\  $$\      $$\ $$$$$$$$\
+# $$  __$$\ $$  _____|$$$\  $$ |$$  __$$\ $$$\    $$$ |$$  _____|
+# $$ /  \__|$$ |      $$$$\ $$ |$$ /  $$ |$$$$\  $$$$ |$$ |
+# $$ |$$$$\ $$$$$\    $$ $$\$$ |$$ |  $$ |$$\$$\$$ $$ |$$$$$\
+# $$ |\_$$ |$$  __|   $$ \$$$$ |$$ |  $$ |$$ \$$$  $$ |$$  __|
+# $$ |  $$ |$$ |      $$ |\$$$ |$$ |  $$ |$$ |\$  /$$ |$$ |
+# \$$$$$$  |$$$$$$$$\ $$ | \$$ | $$$$$$  |$$ | \_/ $$ |$$$$$$$$\
+#  \______/ \________|\__|  \__| \______/ \__|     \__|\________|
 
 
 # You can use BSgenome::available.genomes(TRUE)
@@ -33,7 +41,7 @@
 #' # after that it will be saved as an object
 #' genome = genome_selector(available = T)
 #'
-#' 
+#'
 #' # select the desired genome package
 #' genome = genome_selector(alias = "Hsapiens.1000genomes.hs37d5")
 #' }
@@ -190,7 +198,10 @@ get_region_chunks <- function(gr,wl = 10000,unlist = TRUE) {
 
   if (unlist){
     names(res) = NULL
-    res = do.call(what = "c",args = res)
+    # the warning s due to multiple things don't share seqnmas
+    # could be solved by explicitely seting seqnames
+    # I think it wouldn't be worth the effort.
+    res = suppressWarnings(do.call(what = "c",args = res))
   }
 
   return(res)

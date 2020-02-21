@@ -1,4 +1,15 @@
-## regions
+#                               $$\
+#                               \__|
+#  $$$$$$\   $$$$$$\   $$$$$$\  $$\  $$$$$$\  $$$$$$$\   $$$$$$$\
+# $$  __$$\ $$  __$$\ $$  __$$\ $$ |$$  __$$\ $$  __$$\ $$  _____|
+# $$ |  \__|$$$$$$$$ |$$ /  $$ |$$ |$$ /  $$ |$$ |  $$ |\$$$$$$\
+# $$ |      $$   ____|$$ |  $$ |$$ |$$ |  $$ |$$ |  $$ | \____$$\
+# $$ |      \$$$$$$$\ \$$$$$$$ |$$ |\$$$$$$  |$$ |  $$ |$$$$$$$  |
+# \__|       \_______| \____$$ |\__| \______/ \__|  \__|\_______/
+#                     $$\   $$ |
+#                     \$$$$$$  |
+#                      \______/
+
 
 
 #' Shufle BED
@@ -18,8 +29,6 @@
 #' Resulting regions may overlap
 #'
 #' @export
-#'
-#' @examples
 #'
 shufle_regions <- function(regions,mask) {
   # hereI should check that regions have a unique match in the mask
@@ -93,15 +102,6 @@ shufle_regions <- function(regions,mask) {
 
 }
 
-
-
-
-
-
-
-## regions
-
-
 #' Shufle BED
 #'
 #' Similar to \href{https://bedtools.readthedocs.io/en/latest/content/tools/shuffle.html}{shufleBed} from bedtools.
@@ -119,8 +119,6 @@ shufle_regions <- function(regions,mask) {
 #' Resulting regions may overlap
 #'
 #' @export
-#'
-#' @examples
 #'
 shufle_regions2 <- function(regions,mask) {
   # hereI should check that regions have a unique match in the mask
@@ -198,9 +196,6 @@ shufle_regions2 <- function(regions,mask) {
   return(random_gr)
 
 }
-
-
-
 
 
 #' Obtain genomic regions from gene lists

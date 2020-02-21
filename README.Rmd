@@ -10,12 +10,12 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "man/figures/README-"
 )
 library(helperMut)
 ```
 
-# helperMut <a href=''><img src='helperMut.png' align="right" height="165" /></a>
+# helperMut <a href=''><img src='man/figures/helperMut.png' align="right" height="165" /></a>
 
 <!-- badges: start -->
 [![Build Status](https://travis-ci.com/davidmasp/helperMut.svg?branch=develop)](https://travis-ci.com/davidmasp/helperMut)
@@ -66,10 +66,10 @@ simplify_muts(mutations)
 set.seed(42)
 de_novo_sig = runif(n = 96*3,min = 0,max = 1)
 de_novo_sig = matrix(de_novo_sig, ncol = 3)
-rownames(de_novo_sig) = pos_ms96
+rownames(de_novo_sig) = generate_mut_types(k = 1)
 colnames(de_novo_sig) = LETTERS[1:3]
 
-cosmic_sigs = download_signature_set(type = "cosmic")
+cosmic_sigs = download_signature_set(version =  "v2")
 
 res = compare_signature_sets(x = de_novo_sig,y = cosmic_sigs)
 heatmap(res)
@@ -101,6 +101,7 @@ package will have an added value to the user.
 
 * [SomaticSignatures](http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html) It extracts Mutation Subtype information from VCFs (restricted to a defined ctx). It also performs NMF/PCA signature extraction which is not covered in helperMut.
 * [MutationalPatterns](http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html) Same as somaticSignatures.
+* [YAPSA](https://github.com/eilslabs/YAPSA) Yet Another Package for Signature Analysis
 
 ## Contribute
 

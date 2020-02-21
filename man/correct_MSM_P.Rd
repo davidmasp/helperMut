@@ -11,9 +11,6 @@ correct_MSM_P(msm, P)
 
 \item{P}{vector with the positives per row}
 }
-\value{
-
-}
 \description{
 Correct MSM per total positives
 }

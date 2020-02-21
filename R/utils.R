@@ -1,10 +1,18 @@
-## UTILS =======================================================================
+# $$\   $$\ $$$$$$$$\ $$$$$$\ $$\       $$$$$$\
+# $$ |  $$ |\__$$  __|\_$$  _|$$ |     $$  __$$\
+# $$ |  $$ |   $$ |     $$ |  $$ |     $$ /  \__|
+# $$ |  $$ |   $$ |     $$ |  $$ |     \$$$$$$\
+# $$ |  $$ |   $$ |     $$ |  $$ |      \____$$\
+# $$ |  $$ |   $$ |     $$ |  $$ |     $$\   $$ |
+# \$$$$$$  |   $$ |   $$$$$$\ $$$$$$$$\\$$$$$$  |
+#  \______/    \__|   \______|\________|\______/
+
+
 
 
 .lenunique <- function(x){
   length(unique(x))
 }
-
 
 #' Jaccard Index
 #'
@@ -32,22 +40,34 @@ jaccard <- function(x,y){
 
 # STATS ===============
 
+#' pseudo-vectorized binomial test
+#'
+#' This function is a wrapper of the \link[stats]{binom.test}
+#' function that can be used with vectors.
+#'
+#' @param x x for binom test
+#' @param n n for binom test
+#' @param p success probability
+#' @param ... further params for binom.test
+#'
+#' @return a dataframe with statistics from the binom.test.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' binom_test(x = c(1,2,3),n = c(2,4,6))
+#'
 binom_test <- function(x,n,p=NULL,...){
-  if (!all(c(requireNamespace("broom", quietly = TRUE),
-             requireNamespace("purrr", quietly = TRUE)))){
-    print("Dependencies failed.")
-  }
 
   if (is.null(p)){
     res = purrr::map_df(1:length(x),function(i){
-      broom::tidy(binom.test(x = x[i],n = n[i],...))
+      broom::tidy(stats::binom.test(x = x[i],n = n[i],...))
     })
   } else if (!is.null(n) ){
-    #if (any(x == n))({stop("Error when x = n")})
-    # if pvalue is FALSE then it goes to 0
     res = purrr::map_df(1:length(x),function(i){
       tryCatch({
-        test = binom.test(x = x[i],n = n[i],p = p[i],...)
+        test = stats::binom.test(x = x[i],n = n[i],p = p[i],...)
         if (is.logical(test$p.value)){
           test$p.value = as.numeric(test$p.value)
         }
@@ -59,24 +79,63 @@ binom_test <- function(x,n,p=NULL,...){
   return(res)
 }
 
+#' Get k-mer frequency in mutation-neighbouring regions
+#'
+#' From mutations in a VRanges object, obtain the k-mer oligonucleotide
+#' frequencies at a given window length.
+#'
+#' @param vr a VRanges object with SNVs
+#' @param k the extension of mutation context in one direction
+#' @param wl the window length from which each mutation would be expanded
+#' @param gr a GRanges object delimiting the region of interest
+#' @param genome a BSgenome object
+#' @param ... arguments for oligonucleotideFrequency
+#'
+#' @return
+#' A integer named vector with the oligonucleotides selected at a given k.
+#' @export
+#'
+#' @examples
+#' get_k_freq(vr_example,
+#'           k = 1,
+#'           wl = 1000,
+#'           genome = genome_selector("Hsapiens.1000genomes.hs37d5"))
 get_k_freq <- function(vr,k,wl,genome = genome_selector(),...){
 
   up = round(wl/2,0)
   down = round(wl/2,0)
-  extended_region = extend(x = vr,upstream = up, downstream = wl)
-
+  extended_region = extend(x = vr,upstream = up, downstream = down)
 
   # we reduce to avoid overlaps
   extended_region = GenomicRanges::reduce(extended_region)
-  seqlevels(extended_region) = seqlevels(genome)
-  gL = seqlengths(genome)
-  seqlengths(extended_region) <- gL
-  extended_region = trim(extended_region)
+  GenomeInfoDb::seqlevels(extended_region) = GenomeInfoDb::seqlevels(genome)
+  gL = GenomeInfoDb::seqlengths(genome)
+  GenomeInfoDb::seqlengths(extended_region) <- gL
+  extended_region = GenomicRanges::trim(extended_region)
 
   # we now compute the frequency
   seqN = BSgenome::getSeq(genome, extended_region)
   K = (k*2)+1
-  tri_freqs = oligonucleotideFrequency(seqN, width=K,...)
+  tri_freqs = Biostrings::oligonucleotideFrequency(seqN, width=K,...)
+  tri_counts = apply(tri_freqs,2, sum)
+  return(tri_counts)
+}
+
+#' @describeIn get_k_freq Get k-mer frequency in regions
+get_k_freq_fromRegion <- function(k,gr,genome = genome_selector(),...){
+
+  # this is not really needed but just in case
+  extended_region = extend(x = gr,upstream = k, downstream = k)
+  extended_region = GenomicRanges::reduce(extended_region)
+  GenomeInfoDb::seqlevels(extended_region) = GenomeInfoDb::seqlevels(genome)
+  gL = GenomeInfoDb::seqlengths(genome)
+  GenomeInfoDb::seqlengths(extended_region) <- gL
+  extended_region = GenomicRanges::trim(extended_region)
+
+  # we now compute the frequency
+  seqN = BSgenome::getSeq(genome, extended_region)
+  K = (k*2)+1
+  tri_freqs = Biostrings::oligonucleotideFrequency(seqN, width=K,...)
   tri_counts = apply(tri_freqs,2, sum)
   return(tri_counts)
 }
@@ -181,10 +240,28 @@ compute_motif_enrichment <- function(vr,
 
 }
 
-compute_rapo <- function(vr,genome = genome_selector(),wl = 1000000){
+#' Compute apobec enrichment locally for a set of mutations
+#'
+#' Implemented from the methods in Seplyarskiy 2016 Genome Research.
+#'
+#' It computes the number of APOBEC mutations defined a TCW>K and it compares
+#' these numbers to nonAPOBEC mutations in the VCW>K context surrounding the
+#' given set of mutations. The mutations are extended with a wl described in
+#' the arguments. The ratios are corrected by context occurence.
+#'
+#' @param vr a VRanges object with a set of mutations
+#' @param genome a BSgenome object
+#' @param wl the window lenght to explore
+#'
+#' @return
+#' A single integer indicating the ratio of rates. Higher values indicate
+#' more apobec3a/b enrichment.
+#' @export
+#'
+#' @examples
+compute_rAPOBEC <- function(vr,genome = genome_selector(),wl = 1000000){
   # defined as in Seplyarskiy_2016_GR and Roberts 2013 Nature Genetics
   # but locally (1mb bins)
-
 
   ms = get_MS_VR(x = vr,k=1)
 
@@ -194,21 +271,8 @@ compute_rapo <- function(vr,genome = genome_selector(),wl = 1000000){
   apobec_muts = sum(ms %in% set_up)
   non_apobec_muts = sum(ms %in% set_down)
 
-  up = round(wl/2,0)
-  down = round(wl/2,0)
-  extended_region = extend(x = vr,upstream = up, downstream = wl)
+  tri_counts = get_k_freq(vr = vr,k = 1,wl = wl,genome = genome)
 
-  # we reduce to avoid overlaps
-  extended_region = GenomicRanges::reduce(extended_region)
-  seqlevels(extended_region) = seqlevels(genome)
-  gL = seqlengths(genome)
-  seqlengths(extended_region) <- gL
-  extended_region = trim(extended_region)
-
-  # we now compute the frequency
-  seqN = BSgenome::getSeq(genome, extended_region)
-  tri_freqs = Biostrings::trinucleotideFrequency(seqN)
-  tri_counts = apply(tri_freqs,2, sum)
   set_up_ctx = set_up %>% stringr::str_sub(1,3) %>% unique()
   set_down_ctx = set_down %>% stringr::str_sub(1,3) %>% unique()
 
