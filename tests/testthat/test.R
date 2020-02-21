@@ -366,9 +366,6 @@ context("profiles")
 test_that("download sets", {
   expect_error(download_signature_set(version = "v3",synapse_apiKey = NULL))
 
-  test1 = download_signature_set(version = "v3")
-  expect_equal(ncol(test1),67)
-  expect_equal(nrow(test1),96)
   test2 = download_signature_set() # defaults to v2
   expect_equal(ncol(test2),30)
   expect_equal(nrow(test2),96)
