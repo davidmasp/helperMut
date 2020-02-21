@@ -40,5 +40,6 @@ Imports:
     readr,
     GenomicFeatures,
     AnnotationDbi,
-    SomaticSignatures
+    SomaticSignatures,
+    S4Vectors
 RoxygenNote: 7.0.0
