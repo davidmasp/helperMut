@@ -420,22 +420,22 @@ make_set <- function(x,
     substr(x = a,start = x,stop = x)
     }) %>%
     purrr::map(function(x){
-      dna_codes[[x]]
+      helperMut::dna_codes[[x]]
     })
 
   # yes. but is should be a list.
-  sb = list(dna_codes[[b]])
+  sb = list(helperMut::dna_codes[[b]])
 
   se = 1:nchar(e) %>%
     purrr::map(function(x){
       substr(x = e,start = x,stop = x)
     }) %>%
     purrr::map(function(x){
-      dna_codes[[x]]
+      helperMut::dna_codes[[x]]
     })
 
   # this should be a vector because how expand.grid works.
-  sto = dna_codes[[to]]
+  sto = helperMut::dna_codes[[to]]
 
   comb_df = expand.grid(c(sa,sb,se))
 
@@ -650,7 +650,7 @@ identify_mut_aestetics = function(ms, force = FALSE){
 
   mset_ref = stringr::str_sub(ms,k + 1,k + 1)
 
-  cond = mset_ref %in% unique(unlist(dna_codes))
+  cond = mset_ref %in% unique(unlist(helperMut::dna_codes))
   if (any(!cond) & !force){ #shit
     idx = which(!cond)
     idxs = paste0(idx,collapse = ",")
