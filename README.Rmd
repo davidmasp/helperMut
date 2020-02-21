@@ -101,6 +101,7 @@ package will have an added value to the user.
 
 * [SomaticSignatures](http://bioconductor.org/packages/release/bioc/html/SomaticSignatures.html) It extracts Mutation Subtype information from VCFs (restricted to a defined ctx). It also performs NMF/PCA signature extraction which is not covered in helperMut.
 * [MutationalPatterns](http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html) Same as somaticSignatures.
+* [YAPSA](https://github.com/eilslabs/YAPSA) Yet Another Package for Signature Analysis
 
 ## Contribute
 
