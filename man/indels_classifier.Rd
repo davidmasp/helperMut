@@ -24,7 +24,7 @@ indels_classifier(
 \item{groupVar}{Used to determine rows in the final matrix}
 }
 \value{
-
+A dataframe with rows as grouped elements and columns as features
 }
 \description{
 UNDER DEVELOPMENT!
@@ -37,5 +37,6 @@ See here for more details.
 
 Input format needs to be first letter in REF and ALT is shared. Then this
 letter corresponds to the reference sequence in genome. This should be the
-format obtained from \url{ bcftools norm}{http://samtools.github.io/bcftools/bcftools.html#norm}
+format obtained from
+\url{bcftools norm}{http://samtools.github.io/bcftools/bcftools.html#norm}
 }
