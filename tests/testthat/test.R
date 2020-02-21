@@ -324,16 +324,20 @@ test_that("regions", {
   )
 
   res = shufle_regions2(regions = gr_reg_test,mask = mask_gr_test)
+  res2 = shufle_regions(regions = gr_reg_test,mask = mask_gr_test)
 
 
   library(GenomicRanges)
   ovr = findOverlaps(query = res,subject = mask_gr_test)
+  ovr2 = findOverlaps(query = res2,subject = mask_gr_test)
 
   # this tests if the result is in the mask
   expect_equal(length(unique(queryHits(ovr))) , length(gr_reg_test))
+  expect_equal(length(unique(queryHits(ovr2))) , length(gr_reg_test))
 
   # this test if the result is shufled
   expect_false(all(start(res) == start(gr_reg_test)))
+  expect_false(all(start(res2) == start(gr_reg_test)))
 })
 
 
@@ -373,6 +377,21 @@ test_that("download sets", {
 })
 
 
+context("profiles")
+test_that("compare sig sets", {
+  set = matrix(runif(n = 96*3,min = 0,max = 1), ncol = 3) -> set2
+
+  rownames(set) = generate_mut_types(k = 1)
+  rownames(set2) = helperMut::simplify_muts(rownames(set),
+                                            simplify_set = c("G","T"))
+
+  # shuffle rows
+  set2 = set2[sample(x = 96,size = 96,replace = F),]
+
+  res = compare_signature_sets(set,set2)
+  expect_true(all(diag(res) == 1))
+})
+
 # DATA --------------------------------------------------------------------
 
 context("data")
@@ -399,6 +418,47 @@ test_that("binom test", {
   expect_equal(singleP,multP)
 })
 
+context("utils")
+test_that("k freq",{
+  library(VariantAnnotation)
+  vr = VRanges(
+    seqnames = c("chr3"),
+    ranges = IRanges(start = 131157777, width = 1),
+    ref = "C",alt = "T"
+  )
+  genome = genome_selector(alias = "Hsapiens.UCSC.hg19")
+  get_k_freq(vr = vr,wl = 5, k = 1) -> test
+  expect_equal(sum(test),3)
+  expect_equal(test["ATC"],c("ATC" = 1L))
+  expect_equal(test["TCC"],c("TCC" = 1L))
+  expect_equal(test["CCT"],c("CCT" = 1L))
+  expect_equal(test["CCC"],c("CCC" = 0))
+  get_k_freq(vr = vr,wl = 5, k = 0) -> test2
+  expect_equal(test2["C"],c("C" = 2))
+  expect_equal(test2["A"],c("A" = 1))
+  expect_equal(test2["T"],c("T" = 2))
+  expect_equal(sum(test2),5)
+})
+
+
+context("utils")
+test_that("rAPOBEC",{
+  library(VariantAnnotation)
+  vr = VRanges(
+    seqnames = c("chr3"),
+    ranges = IRanges(start = c(131157783,131157780,149131582), width = 1),
+    ref = "C",alt = "T"
+  )
+
+  strand(vr) = "+"
+  genome = genome_selector(alias = "Hsapiens.UCSC.hg19")
+  res = compute_rAPOBEC(vr = vr,genome = genome,wl = 10 )
+
+  # should we do this by hand? a bit difficult even in small sizes
+  expect_equal(res,5)
+  expect_true(is.numeric(res))
+
+})
 
 context("utils")
 test_that("random", {

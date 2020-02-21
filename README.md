@@ -14,7 +14,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## Overview
 
-HyperMut provides basic functionalities and helper functions to work
+helperMut provides basic functionalities and helper functions to work
 with mutational and genomic data in R. It builds up on pre-existing
 tools from bioc to set up a framework for analysis. I mostly use it for
 my work in cancer genomics but in principle any other field working in
@@ -22,23 +22,16 @@ mutations or population diversity could be used.
 
 ## Installation
 
+In order to install the package use:
+
 ``` r
 ## If still private, make sure that there is a enviroment variable (.Renviron)
 ## with the token (PAT). The name of the variable should be GITHUB_PAT
 remotes::install_github("davidmasp/helpermut@develop")
 ```
 
-``` r
-
-covr::package_coverage()
-#> helperMut Coverage: 60.51%
-#> R/indels.R: 22.22%
-#> R/utils.R: 27.78%
-#> R/regions.R: 41.51%
-#> R/genome.R: 52.94%
-#> R/profiles.R: 71.93%
-#> R/muts.R: 81.63%
-```
+You need to first install the
+[remotes](https://cran.r-project.org/web/packages/remotes/index.html)
 
 ## Usage
 
@@ -99,6 +92,9 @@ in this package will have an added value to the user.
     not covered in helperMut.
   - [MutationalPatterns](http://bioconductor.org/packages/release/bioc/html/MutationalPatterns.html)
     Same as somaticSignatures.
+  - [YAPSA](https://github.com/eilslabs/YAPSA) Yet Another Package for
+    Signature Analysis
+  - [signature.tools.lib](https://github.com/Nik-Zainal-Group/signature.tools.lib)
 
 ## Contribute
 
