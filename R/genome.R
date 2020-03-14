@@ -125,10 +125,7 @@ genome_selector <- function(alias="Hsapiens.UCSC.hg19",
     }
 
     if (choice == 1){
-      message("Sourcing bioclite from bioconductor.org")
-      ## try http:// if https:// URLs are not supported
-      source("https://bioconductor.org/biocLite.R")
-      biocLite(query)
+      BiocManager::install(query)
       genome = BSgenome::getBSgenome(query)
     } else {
       stop("Use install=TRUE to automatically install the needed package.")
