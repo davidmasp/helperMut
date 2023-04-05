@@ -41,5 +41,6 @@ Imports:
     GenomicFeatures,
     AnnotationDbi,
     SomaticSignatures,
-    S4Vectors
+    S4Vectors,
+    BiocManager
 RoxygenNote: 7.0.0
