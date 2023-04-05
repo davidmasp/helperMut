@@ -282,7 +282,7 @@ simplify_muts <- function(muts,simplify_set = c("C","A"),sep=">") {
   # could add a method to mantain strand
   cp = k + 1
 
-  central_pos = stringr::str_sub(seq,start = cp,end= cp)
+  central_pos = stringr::str_sub(as.character(seq),start = cp,end= cp)
 
   # first we add the ones in the positive set
   simplify_pattern = glue::glue("[{paste0(simplify_set,collapse='')}]")
@@ -338,7 +338,7 @@ simplify_ctx <- function(ctx,simplify_set = c("C","A")) {
   # could add a method to mantain strand
   cp = k + 1
 
-  central_pos = stringr::str_sub(seq,start = cp,end= cp)
+  central_pos = stringr::str_sub(as.character(seq),start = cp,end= cp)
 
   # first we add the ones in the positive set
   simplify_pattern = glue::glue("[{paste0(simplify_set,collapse='')}]")
